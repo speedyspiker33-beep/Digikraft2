@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>DigiKraft Admin v2.0 - User Management</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#2463eb",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#111621",
+                    },
+                    fontFamily: {
+                        "display": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .material-symbols-outlined { font-size: 20px; vertical-align: middle; }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 overflow-x-hidden">
+<!-- Main Layout -->
+<div class="flex h-screen overflow-hidden">
+<!-- Sidebar -->
+<aside class="w-64 bg-white border-r border-slate-200 flex flex-col shrink-0">
+<div class="p-6 flex items-center gap-3">
+<div class="bg-primary size-10 rounded-lg flex items-center justify-center text-white">
+<span class="material-symbols-outlined">shield_person</span>
+</div>
+<div class="flex flex-col">
+<h1 class="text-[#111318] text-base font-bold leading-none">DigiKraft Admin</h1>
+<p class="text-slate-500 text-xs font-medium mt-1">v2.0 Panel</p>
+</div>
+</div>
+<nav class="flex-1 px-4 space-y-1">
+<a class="flex items-center gap-3 px-3 py-2.5 text-slate-600 hover:bg-slate-50 rounded-lg transition-colors" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="text-sm font-medium">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 bg-primary text-white rounded-lg shadow-sm" href="#">
+<span class="material-symbols-outlined">group</span>
+<span class="text-sm font-medium">User Management</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 text-slate-600 hover:bg-slate-50 rounded-lg transition-colors" href="#">
+<span class="material-symbols-outlined">shopping_bag</span>
+<span class="text-sm font-medium">Orders</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 text-slate-600 hover:bg-slate-50 rounded-lg transition-colors" href="#">
+<span class="material-symbols-outlined">bar_chart_4_bars</span>
+<span class="text-sm font-medium">Reports</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 text-slate-600 hover:bg-slate-50 rounded-lg transition-colors" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="text-sm font-medium">Settings</span>
+</a>
+</nav>
+<div class="p-4 border-t border-slate-100">
+<button class="w-full flex items-center justify-center gap-2 px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors">
+<span class="material-symbols-outlined">logout</span>
+<span class="text-sm font-bold">Logout</span>
+</button>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 flex flex-col min-w-0 bg-slate-50 overflow-hidden relative">
+<!-- Header -->
+<header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8 shrink-0">
+<div class="flex items-center flex-1 max-w-md">
+<div class="relative w-full">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">search</span>
+<input class="w-full pl-10 pr-4 py-2 bg-slate-100 border-none rounded-lg text-sm focus:ring-2 focus:ring-primary/20 placeholder:text-slate-500" placeholder="Search across platform..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="size-10 flex items-center justify-center text-slate-600 hover:bg-slate-100 rounded-full">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<div class="h-8 w-px bg-slate-200 mx-2"></div>
+<div class="flex items-center gap-3">
+<div class="text-right hidden sm:block">
+<p class="text-sm font-bold text-slate-900 leading-none">Super Admin</p>
+<p class="text-xs text-slate-500 mt-1">John Doe</p>
+</div>
+<div class="size-10 rounded-full bg-slate-200 border-2 border-white shadow-sm overflow-hidden">
+<img alt="User avatar" data-alt="Male user profile avatar John Doe" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCdCNLKSabqndKQMk1odOdktfneaXKUaVb3UGybKOH8g535L4VkKV0zSpbuSvLr5UlS897dxl2nriYWcVW5R3niUHWDiTMP79rOjowr_gCQRpX6wKhlba75hgOh1-4b57YjQinw10dTGHDj3c0IiGaXlOPu51Cdt9WVhvXoj8iPapzoahuv5lvVSDcDTSFyxYJPiJzpo7cWJyUaPWYoDyua_91Kxa0lPMk765zjIhqNmJryXTacJncrwvVKEBzBw9MaOc3mxYuMB7V6"/>
+</div>
+</div>
+</div>
+</header>
+<!-- Page Content -->
+<div class="flex-1 overflow-y-auto p-8">
+<!-- Page Title -->
+<div class="flex items-center justify-between mb-8">
+<div>
+<h2 class="text-2xl font-black text-slate-900 tracking-tight">User Management</h2>
+<p class="text-slate-500 text-sm mt-1">Manage, filter and audit all registered platform users</p>
+</div>
+</div>
+<!-- Control Bar -->
+<div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-4 mb-6">
+<div class="flex flex-wrap items-center justify-between gap-4">
+<div class="flex flex-wrap items-center gap-3">
+<div class="relative min-w-64">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">search</span>
+<input class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-lg text-sm focus:ring-primary focus:border-primary" placeholder="Search users..." type="text"/>
+</div>
+<div class="flex items-center border border-slate-200 rounded-lg px-3 py-2 bg-white gap-2 cursor-pointer hover:border-primary">
+<span class="text-xs font-medium text-slate-500">Role:</span>
+<span class="text-sm font-semibold">All Roles</span>
+<span class="material-symbols-outlined text-slate-400">expand_more</span>
+</div>
+<div class="flex items-center border border-slate-200 rounded-lg px-3 py-2 bg-white gap-2 cursor-pointer hover:border-primary">
+<span class="text-xs font-medium text-slate-500">Status:</span>
+<span class="text-sm font-semibold">All Statuses</span>
+<span class="material-symbols-outlined text-slate-400">expand_more</span>
+</div>
+</div>
+<button class="bg-primary text-white px-5 py-2.5 rounded-lg text-sm font-bold flex items-center gap-2 hover:bg-primary/90 shadow-md shadow-primary/20 transition-all active:scale-95">
+<span class="material-symbols-outlined">add</span>
+                            Add User
+                        </button>
+</div>
+<!-- Bulk Actions (Visible because Rajesh is selected) -->
+<div class="flex items-center gap-3 py-2 px-4 bg-primary/5 border border-primary/20 rounded-lg">
+<span class="text-xs font-bold text-primary uppercase tracking-wider">Bulk Actions:</span>
+<div class="h-4 w-px bg-primary/20 mx-1"></div>
+<button class="text-xs font-bold flex items-center gap-1.5 px-3 py-1.5 bg-white border border-primary/20 text-primary rounded-lg hover:bg-primary hover:text-white transition-colors">
+                            Change Role <span class="material-symbols-outlined !text-[14px]">expand_more</span>
+</button>
+<button class="text-xs font-bold flex items-center gap-1.5 px-3 py-1.5 bg-white border border-primary/20 text-primary rounded-lg hover:bg-primary hover:text-white transition-colors">
+                            Change Status <span class="material-symbols-outlined !text-[14px]">expand_more</span>
+</button>
+<button class="text-xs font-bold flex items-center gap-1.5 px-3 py-1.5 bg-white border border-primary/20 text-primary rounded-lg hover:bg-primary hover:text-white transition-colors">
+<span class="material-symbols-outlined !text-[14px]">mail</span> Send Email
+                        </button>
+<button class="text-xs font-bold flex items-center gap-1.5 px-3 py-1.5 bg-white border border-red-200 text-red-600 rounded-lg hover:bg-red-600 hover:text-white transition-colors">
+<span class="material-symbols-outlined !text-[14px]">delete</span> Delete
+                        </button>
+</div>
+</div>
+<!-- Table -->
+<div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-slate-50 border-b border-slate-200">
+<th class="py-4 px-6 w-10">
+<input class="rounded border-slate-300 text-primary focus:ring-primary" type="checkbox"/>
+</th>
+<th class="py-4 px-4 text-xs font-bold text-slate-500 uppercase tracking-wider">User</th>
+<th class="py-4 px-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Role</th>
+<th class="py-4 px-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Status</th>
+<th class="py-4 px-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Last Active</th>
+<th class="py-4 px-4 text-right"></th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-100">
+<!-- Selected Row: Rajesh Kumar -->
+<tr class="bg-primary/5 hover:bg-primary/10 transition-colors">
+<td class="py-4 px-6">
+<input checked="" class="rounded border-slate-300 text-primary focus:ring-primary cursor-pointer" type="checkbox"/>
+</td>
+<td class="py-4 px-4">
+<div class="flex items-center gap-3">
+<div class="size-10 rounded-full bg-slate-200 overflow-hidden">
+<img alt="User" data-alt="Male user Rajesh Kumar avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCC4ZIjyMZNZRSphWp3Qfgxdb-AjefLXz13tymIlIbKfRScpgXQjKBPYG5qn-qMcFW5dYRJ6h41qtWUlFFc6PHu6yhDpIAH1nA54PeLjVyYv5CXAQgF2IJXRq4OpiarQiQYctxghYvAz2LzYRu0Ls5W-gRrLIRqDvJwE5ijRyWCwG3UpRmbRnELvpK-q5JYbyuVj603sm6_DvoB1eCGQFliiFuqrvplCLZ6QMFMVTqjNgaewSKHd1wRA_xpFIGMw0W_LC-kUesGKFaO"/>
+</div>
+<div>
+<p class="text-sm font-bold text-slate-900">Rajesh Kumar</p>
+<p class="text-xs text-slate-500">raj@email.com</p>
+</div>
+</div>
+</td>
+<td class="py-4 px-4">
+<div class="inline-flex items-center px-2.5 py-1 rounded-md bg-[#DBEAFE] text-primary text-[11px] font-bold">
+                                        Sub-Admin <span class="mx-1.5 text-slate-400">•</span> CorelDRAW
+                                    </div>
+</td>
+<td class="py-4 px-4">
+<div class="flex items-center gap-2">
+<span class="size-2 rounded-full bg-emerald-500"></span>
+<span class="text-sm font-medium text-slate-700">Active</span>
+</div>
+</td>
+<td class="py-4 px-4">
+<span class="text-xs font-medium text-slate-500">2 min ago</span>
+</td>
+<td class="py-4 px-4 text-right">
+<button class="p-2 text-slate-400 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</td>
+</tr>
+<!-- Row 2: Sarah Miller -->
+<tr class="hover:bg-slate-50 transition-colors">
+<td class="py-4 px-6">
+<input class="rounded border-slate-300 text-primary focus:ring-primary cursor-pointer" type="checkbox"/>
+</td>
+<td class="py-4 px-4">
+<div class="flex items-center gap-3">
+<div class="size-10 rounded-full bg-slate-200 overflow-hidden">
+<img alt="User" data-alt="Female user Sarah Miller avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC8fNyL_Wx-kQP-V3GHdJe8qomqtp_Dqe8qsGUudDxCNrQyDlzZwDusoZSbiOutTxTN9q_OMm7iVNr_mZyGnXtxhbH_DB2ZOafSFjDZJ4ioPtkXhKRAfO-0JZk0lA1Gm3TtwXBA-pfmMcAeOZAchhkzEXw59A88hat0pgQyWlDKwBwm7Ph1S2246uc3FpM6vjWrAOCrf4MCEjQfVhZ-nr-pGbwChwR_6iYXMgDoibq9CpEYzYkhZTG2AReEtWnPFjnaYMZdjz2YrE4t"/>
+</div>
+<div>
+<p class="text-sm font-bold text-slate-900">Sarah Miller</p>
+<p class="text-xs text-slate-500">sarah@email.com</p>
+</div>
+</div>
+</td>
+<td class="py-4 px-4">
+<div class="inline-flex px-2.5 py-1 rounded-md bg-[#F3F4F6] text-slate-600 text-[11px] font-bold uppercase">
+                                        Customer
+                                    </div>
+</td>
+<td class="py-4 px-4">
+<div class="flex items-center gap-2">
+<span class="size-2 rounded-full bg-emerald-500"></span>
+<span class="text-sm font-medium text-slate-700">Active</span>
+</div>
+</td>
+<td class="py-4 px-4">
+<span class="text-xs font-medium text-slate-500">5 min ago</span>
+</td>
+<td class="py-4 px-4 text-right">
+<button class="p-2 text-slate-400 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</td>
+</tr>
+<!-- Row 3: John Doe -->
+<tr class="hover:bg-slate-50 transition-colors">
+<td class="py-4 px-6">
+<input class="rounded border-slate-300 text-primary focus:ring-primary cursor-pointer" type="checkbox"/>
+</td>
+<td class="py-4 px-4">
+<div class="flex items-center gap-3">
+<div class="size-10 rounded-full bg-slate-200 overflow-hidden border border-slate-300">
+<img alt="User" data-alt="Male user John Doe avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBpUnmBdwgBHVJ196Z6SDaOFhNkvlt8FZ6zf2SOfIF128sWODoKuZW1o0gWLplR54QSsDIi6PMILBS4wxT9pvECw50fVQYWoBUuvH3qgPktWprFMVbFGByLP3diyyPsKuRVU-CLn3L_MOSU4VkKno1_3uNhSiKwjqP-94JJy6YLtKGBFQedPjhGUZdb0X3z2WUVP91wU15Wy8ibe-Cy_5ELyJpkoLBZPMZ2mAsXK3VT-bCAfnU5s9kZ9JuGRvDSuEbqP0wSXLVhJ44r"/>
+</div>
+<div>
+<p class="text-sm font-bold text-slate-900">John Doe</p>
+<p class="text-xs text-slate-500">john@email.com</p>
+</div>
+</div>
+</td>
+<td class="py-4 px-4">
+<div class="inline-flex px-2.5 py-1 rounded-md bg-[#1E3A8A] text-white text-[11px] font-bold uppercase tracking-tight">
+                                        Super Admin
+                                    </div>
+</td>
+<td class="py-4 px-4">
+<div class="flex items-center gap-2">
+<span class="size-2 rounded-full bg-emerald-500"></span>
+<span class="text-sm font-medium text-slate-700">Active</span>
+</div>
+</td>
+<td class="py-4 px-4">
+<span class="text-xs font-medium text-slate-500">1 hour ago</span>
+</td>
+<td class="py-4 px-4 text-right">
+<button class="p-2 text-slate-400 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</td>
+</tr>
+<!-- Row 4: Priya Singh -->
+<tr class="hover:bg-slate-50 transition-colors">
+<td class="py-4 px-6">
+<input class="rounded border-slate-300 text-primary focus:ring-primary cursor-pointer" type="checkbox"/>
+</td>
+<td class="py-4 px-4">
+<div class="flex items-center gap-3">
+<div class="size-10 rounded-full bg-slate-200 overflow-hidden">
+<img alt="User" data-alt="Female user Priya Singh avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAhuz2O0sa4lXxc2UnwK7s8UOUli1l5H4rSuZmc4_H7WTE24SLkRR380vyu0XzxAuGWzNxs06RCyaPBppNv2MOfL1hGL-pw5haoMRxJbClW2d-kEclZ9oCXKyvda58LAZLHmkzTi4iAriMriAV4uxzuiNCODjsJsmpyeV9Ls821GTlu030EFL1_BbqBI5X4jR1X501ZFDBc_H0g6wseVGjg84clMKu8fmzcV1TY2yymkezNwm1WW4bJnrOsdZIPzxn1XmU0VwlrIlDn"/>
+</div>
+<div>
+<p class="text-sm font-bold text-slate-900">Priya Singh</p>
+<p class="text-xs text-slate-500">priya@email.com</p>
+</div>
+</div>
+</td>
+<td class="py-4 px-4">
+<div class="inline-flex px-2.5 py-1 rounded-md bg-[#DBEAFE] text-primary text-[11px] font-bold">
+                                        Sub-Admin
+                                    </div>
+</td>
+<td class="py-4 px-4">
+<div class="flex items-center gap-2 text-slate-400">
+<span class="size-2 rounded-full bg-slate-400"></span>
+<span class="text-sm font-medium">Inactive</span>
+</div>
+</td>
+<td class="py-4 px-4">
+<span class="text-xs font-medium text-slate-500">2 days ago</span>
+</td>
+<td class="py-4 px-4 text-right">
+<button class="p-2 text-slate-400 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+<!-- Pagination -->
+<div class="flex items-center justify-between px-6 py-4 bg-slate-50 border-t border-slate-100">
+<p class="text-sm text-slate-500">Showing <span class="font-bold text-slate-900">1-10</span> of <span class="font-bold text-slate-900">1,204</span> users</p>
+<div class="flex items-center gap-1">
+<button class="px-3 py-1 text-sm font-bold text-slate-400 hover:text-slate-600 cursor-not-allowed">Previous</button>
+<button class="size-8 flex items-center justify-center text-sm font-bold bg-primary text-white rounded-md">1</button>
+<button class="size-8 flex items-center justify-center text-sm font-bold text-slate-600 hover:bg-slate-200 rounded-md">2</button>
+<button class="size-8 flex items-center justify-center text-sm font-bold text-slate-600 hover:bg-slate-200 rounded-md">3</button>
+<span class="px-2 text-slate-400">...</span>
+<button class="size-8 flex items-center justify-center text-sm font-bold text-slate-600 hover:bg-slate-200 rounded-md">10</button>
+<button class="px-3 py-1 text-sm font-bold text-primary hover:text-primary/80">Next</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Modal Overlay for Rajesh Kumar -->
+<div class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-6">
+<div class="bg-white w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden flex flex-col">
+<!-- Modal Header -->
+<div class="p-8 border-b border-slate-100 flex items-start justify-between">
+<div class="flex gap-5">
+<div class="size-16 rounded-2xl bg-slate-100 border-2 border-white shadow-sm overflow-hidden shrink-0">
+<img alt="User avatar Large" data-alt="Large profile avatar for user Rajesh Kumar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBmw_YNZPb6wQzKP7ksXrI-xmZ101b9hGRdB8hwIVZQz62JyY7FfgNozyQ7S37lp2pFAGJ8MF_CCLmW1I9nCs0ag4hMqbl3EdCB5m9ObSiV1MxxufzdDuyQqox5tC4eCWRrCHGMLb71ZDFRg55c_hruTtfm_3rDwAdZDHtqbpDb2hPEvLQmNk7Us2UXkcPdzHqifGBTBZwuY7TAPT-lBb0hzwpE08wVR514uIZPAJqSdVcTa-uuD9Ft4dnQOpi-dx3k8xof-oeAAIqI"/>
+</div>
+<div class="space-y-1">
+<div class="flex items-center gap-3">
+<h3 class="text-2xl font-black text-slate-900 tracking-tight">Rajesh Kumar</h3>
+<div class="px-2.5 py-1 rounded-md bg-[#DBEAFE] text-primary text-[10px] font-bold uppercase tracking-wider">
+                                        Sub-Admin
+                                    </div>
+</div>
+<p class="text-slate-500 font-medium">raj@email.com</p>
+<div class="flex items-center gap-2 pt-1">
+<span class="bg-primary/10 text-primary text-[10px] font-bold px-2 py-0.5 rounded uppercase">CorelDRAW Hub</span>
+<span class="text-slate-300">•</span>
+<div class="flex items-center gap-1.5">
+<span class="size-2 rounded-full bg-emerald-500"></span>
+<span class="text-[11px] font-bold text-emerald-600 uppercase">Active Now</span>
+</div>
+</div>
+</div>
+</div>
+<button class="size-8 flex items-center justify-center text-slate-400 hover:bg-slate-100 rounded-full transition-colors">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<!-- Tabs -->
+<div class="px-8 border-b border-slate-100 flex gap-8">
+<button class="py-4 text-sm font-bold text-primary border-b-2 border-primary relative -mb-px">
+                            Profile
+                        </button>
+<button class="py-4 text-sm font-medium text-slate-500 hover:text-slate-700">
+                            Orders
+                        </button>
+<button class="py-4 text-sm font-medium text-slate-500 hover:text-slate-700">
+                            Permissions
+                        </button>
+<button class="py-4 text-sm font-medium text-slate-500 hover:text-slate-700">
+                            Activity
+                        </button>
+</div>
+<!-- Modal Content -->
+<div class="p-8 space-y-8 flex-1 overflow-y-auto">
+<div class="grid grid-cols-3 gap-6">
+<div class="bg-slate-50 p-4 rounded-xl border border-slate-100 text-center">
+<p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Joined</p>
+<p class="text-lg font-bold text-slate-900">Jan 15, 2024</p>
+</div>
+<div class="bg-slate-50 p-4 rounded-xl border border-slate-100 text-center">
+<p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Orders</p>
+<p class="text-lg font-bold text-slate-900">24 <span class="text-xs font-medium text-slate-500">($1,200)</span></p>
+</div>
+<div class="bg-slate-50 p-4 rounded-xl border border-slate-100 text-center">
+<p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Last Login</p>
+<p class="text-lg font-bold text-slate-900">2 min ago</p>
+</div>
+</div>
+<div class="space-y-4">
+<h4 class="text-xs font-bold text-slate-400 uppercase tracking-widest">Administrative Actions</h4>
+<div class="flex flex-wrap gap-3">
+<button class="px-4 py-2.5 border border-slate-200 rounded-lg text-sm font-bold text-slate-700 hover:bg-slate-50 flex items-center gap-2">
+<span class="material-symbols-outlined !text-[18px]">key</span>
+                                    Reset Password
+                                </button>
+<button class="px-4 py-2.5 border border-slate-200 rounded-lg text-sm font-bold text-slate-700 hover:bg-slate-50 flex items-center gap-2">
+<span class="material-symbols-outlined !text-[18px]">visibility</span>
+                                    Impersonate User
+                                </button>
+<button class="px-4 py-2.5 bg-red-50 text-red-600 rounded-lg text-sm font-bold hover:bg-red-100 flex items-center gap-2 border border-red-100 transition-colors">
+<span class="material-symbols-outlined !text-[18px]">block</span>
+                                    Suspend Account
+                                </button>
+</div>
+</div>
+</div>
+<!-- Modal Footer -->
+<div class="p-6 bg-slate-50 border-t border-slate-100 flex justify-end gap-3">
+<button class="px-6 py-2.5 text-sm font-bold text-slate-600 hover:text-slate-800">Close</button>
+<button class="px-6 py-2.5 bg-primary text-white rounded-lg text-sm font-bold shadow-md shadow-primary/20">Save Changes</button>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

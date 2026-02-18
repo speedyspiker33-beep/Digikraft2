@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AI Agents Management - DigiKraft Admin</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#2463eb",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#111621",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .material-symbols-outlined { font-size: 24px; }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-[#111318]">
+<div class="flex min-h-screen">
+<!-- Sidebar -->
+<aside class="w-64 bg-white border-r border-[#e5e7eb] flex flex-col fixed h-full z-20">
+<div class="p-6 flex flex-col gap-8">
+<div class="flex items-center gap-3">
+<div class="bg-primary size-10 rounded-lg flex items-center justify-center text-white">
+<span class="material-symbols-outlined">auto_awesome</span>
+</div>
+<div class="flex flex-col">
+<h1 class="text-[#111318] text-base font-bold leading-none">DigiKraft Admin</h1>
+<p class="text-[#616e89] text-xs font-medium">v2.0</p>
+</div>
+</div>
+<nav class="flex flex-col gap-6">
+<!-- Main Section -->
+<div class="flex flex-col gap-2">
+<p class="text-[#616e89] text-[10px] font-bold uppercase tracking-wider px-3">Main</p>
+<a class="flex items-center gap-3 px-3 py-2 text-[#616e89] hover:bg-background-light rounded-lg transition-colors" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="text-sm font-medium">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-[#616e89] hover:bg-background-light rounded-lg transition-colors" href="#">
+<span class="material-symbols-outlined">analytics</span>
+<span class="text-sm font-medium">Analytics</span>
+</a>
+</div>
+<!-- Marketing Section -->
+<div class="flex flex-col gap-2">
+<p class="text-[#616e89] text-[10px] font-bold uppercase tracking-wider px-3">Marketing</p>
+<a class="flex items-center gap-3 px-3 py-2 text-[#616e89] hover:bg-background-light rounded-lg transition-colors" href="#">
+<span class="material-symbols-outlined">campaign</span>
+<span class="text-sm font-medium">Campaigns</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-[#616e89] hover:bg-background-light rounded-lg transition-colors" href="#">
+<span class="material-symbols-outlined">image</span>
+<span class="text-sm font-medium">Assets</span>
+</a>
+</div>
+<!-- System Section -->
+<div class="flex flex-col gap-2">
+<p class="text-[#616e89] text-[10px] font-bold uppercase tracking-wider px-3">System</p>
+<a class="flex items-center gap-3 px-3 py-2 bg-primary/10 text-primary rounded-lg" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1">smart_toy</span>
+<span class="text-sm font-semibold">AI Agents</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-[#616e89] hover:bg-background-light rounded-lg transition-colors" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="text-sm font-medium">Settings</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-[#616e89] hover:bg-background-light rounded-lg transition-colors" href="#">
+<span class="material-symbols-outlined">group</span>
+<span class="text-sm font-medium">Users</span>
+</a>
+</div>
+</nav>
+</div>
+<div class="mt-auto p-4 border-t border-[#e5e7eb]">
+<div class="flex items-center gap-3 px-2 py-2">
+<div class="size-8 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined" style="font-size: 18px;">support_agent</span>
+</div>
+<div>
+<p class="text-xs font-bold">Support Center</p>
+<p class="text-[10px] text-[#616e89]">Need help? Ask us.</p>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 ml-64 min-h-screen">
+<!-- Top Header -->
+<header class="h-16 bg-white border-b border-[#e5e7eb] flex items-center justify-between px-8 sticky top-0 z-10">
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-2 text-sm">
+<span class="text-[#616e89]">System</span>
+<span class="material-symbols-outlined text-[#616e89] !text-sm">chevron_right</span>
+<span class="text-[#111318] font-medium">AI Agents</span>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[#616e89] group-focus-within:text-primary transition-colors">search</span>
+<input class="pl-10 pr-4 py-1.5 bg-background-light border-transparent rounded-lg text-sm w-64 focus:ring-2 focus:ring-primary focus:bg-white transition-all outline-none" placeholder="Global search..." type="text"/>
+</div>
+<div class="h-8 w-[1px] bg-[#e5e7eb]"></div>
+<div class="flex items-center gap-3">
+<div class="text-right">
+<p class="text-xs font-bold leading-none">Admin User</p>
+<p class="text-[10px] text-[#616e89] mt-1">Super Admin</p>
+</div>
+<div class="size-9 rounded-full bg-cover bg-center ring-2 ring-primary/20" data-alt="User avatar profile picture circular icon" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCvM031jKyDh7LjIAjEArB9qZiBfAzrlnNHNXMS3JW2Q3gHZxEsN6Bc43VX-2G3VEL9QHtQVjCjXF__8HymUTlopxojCYzIAXQ6KR8q0RPVNl2aKKhjdOgAWMv2PshOMJqhQ0EDiXS7zYyGW-CwXRNGxUg4c-meiNMOzHMk5VysFxFXH9Rot2v0Wzhcdg1Ls-T-HpY6ShusHHsJungFZaMtHmJ5OUHVEesVra1Tmx1wVsZZTGiTB_-JaRePAvq7Zmq8FnYHqKEHW8O0')"></div>
+</div>
+</div>
+</header>
+<!-- Page Content -->
+<div class="p-8 max-w-7xl mx-auto">
+<!-- Page Title -->
+<div class="flex items-end justify-between mb-8">
+<div>
+<h2 class="text-3xl font-black tracking-tight text-[#111318]">AI Agents</h2>
+<p class="text-[#616e89] mt-1">Manage and configure your autonomous workforce</p>
+</div>
+<button class="bg-primary hover:bg-blue-700 text-white px-5 py-2.5 rounded-lg font-bold text-sm flex items-center gap-2 transition-all shadow-sm">
+<span class="material-symbols-outlined !text-lg">add</span>
+                        Install New Agent
+                    </button>
+</div>
+<!-- Agent Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+<!-- Product Genesis Agent Card -->
+<div class="bg-white border border-[#e5e7eb] rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+<div class="p-6">
+<div class="flex items-start justify-between mb-4">
+<div class="bg-primary/10 p-3 rounded-lg text-primary">
+<span class="material-symbols-outlined">auto_fix_high</span>
+</div>
+<div class="flex items-center gap-1.5 px-2.5 py-1 bg-green-50 text-green-700 rounded-full">
+<div class="size-2 rounded-full bg-green-500 animate-pulse"></div>
+<span class="text-[10px] font-bold uppercase tracking-wider">Active</span>
+</div>
+</div>
+<h3 class="text-lg font-bold text-[#111318] mb-1">Product Genesis Agent</h3>
+<div class="flex items-center gap-2 mb-4">
+<span class="text-xs text-[#616e89] flex items-center gap-1">
+<span class="material-symbols-outlined !text-xs">bolt</span>
+                                    Autonomy: Suggest Only
+                                </span>
+</div>
+<div class="grid grid-cols-2 gap-3 mb-6">
+<div class="bg-background-light p-3 rounded-lg">
+<p class="text-[10px] font-bold text-[#616e89] uppercase tracking-wider mb-1">Weekly Activity</p>
+<p class="text-sm font-bold">24 processed</p>
+</div>
+<div class="bg-background-light p-3 rounded-lg">
+<p class="text-[10px] font-bold text-[#616e89] uppercase tracking-wider mb-1">Accuracy</p>
+<p class="text-sm font-bold text-green-600">94%</p>
+</div>
+</div>
+<div class="flex items-center gap-2 pt-4 border-t border-[#e5e7eb]">
+<button class="flex-1 bg-white border border-[#e5e7eb] hover:border-primary hover:text-primary py-2 rounded-lg text-xs font-bold transition-all">Configure</button>
+<button class="p-2 text-[#616e89] hover:text-orange-600 hover:bg-orange-50 rounded-lg transition-all">
+<span class="material-symbols-outlined">pause_circle</span>
+</button>
+<button class="p-2 text-[#616e89] hover:text-primary hover:bg-blue-50 rounded-lg transition-all">
+<span class="material-symbols-outlined">list_alt</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Pricing Oracle Agent Card -->
+<div class="bg-white border border-[#e5e7eb] rounded-xl overflow-hidden shadow-sm opacity-80 grayscale-[0.5]">
+<div class="p-6">
+<div class="flex items-start justify-between mb-4">
+<div class="bg-[#616e89]/10 p-3 rounded-lg text-[#616e89]">
+<span class="material-symbols-outlined">monitoring</span>
+</div>
+<div class="flex items-center gap-1.5 px-2.5 py-1 bg-gray-100 text-[#616e89] rounded-full">
+<div class="size-2 rounded-full bg-gray-400"></div>
+<span class="text-[10px] font-bold uppercase tracking-wider">Disabled</span>
+</div>
+</div>
+<h3 class="text-lg font-bold text-[#111318] mb-1">Pricing Oracle Agent</h3>
+<div class="flex items-center gap-2 mb-4">
+<span class="text-xs text-[#616e89]">Activate to start market monitoring</span>
+</div>
+<div class="h-[74px] flex items-center justify-center border-2 border-dashed border-[#e5e7eb] rounded-lg mb-6">
+<p class="text-xs text-[#616e89] italic">No activity recorded</p>
+</div>
+<div class="flex items-center gap-2 pt-4 border-t border-[#e5e7eb]">
+<button class="w-full bg-primary hover:bg-blue-700 text-white py-2.5 rounded-lg text-sm font-bold transition-all shadow-sm">Activate Agent</button>
+</div>
+</div>
+</div>
+<!-- Marketing Synthesizer Agent Card -->
+<div class="bg-white border border-[#e5e7eb] rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+<div class="p-6">
+<div class="flex items-start justify-between mb-4">
+<div class="bg-primary/10 p-3 rounded-lg text-primary">
+<span class="material-symbols-outlined">hub</span>
+</div>
+<div class="flex items-center gap-1.5 px-2.5 py-1 bg-green-50 text-green-700 rounded-full">
+<div class="size-2 rounded-full bg-green-500"></div>
+<span class="text-[10px] font-bold uppercase tracking-wider">Active</span>
+</div>
+</div>
+<h3 class="text-lg font-bold text-[#111318] mb-1">Marketing Synthesizer</h3>
+<div class="flex items-center gap-2 mb-4">
+<span class="text-xs text-primary font-semibold flex items-center gap-1">
+<span class="material-symbols-outlined !text-xs" style="font-variation-settings: 'FILL' 1">auto_awesome</span>
+                                    Autonomy: Auto-Publish
+                                </span>
+</div>
+<div class="mb-6">
+<p class="text-[10px] font-bold text-[#616e89] uppercase tracking-wider mb-2">Connected Channels</p>
+<div class="flex gap-2">
+<div class="size-8 bg-background-light rounded flex items-center justify-center text-[#111318]">
+<svg class="size-4" fill="currentColor" viewbox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069z"></path></svg>
+</div>
+<div class="size-8 bg-background-light rounded flex items-center justify-center text-[#111318]">
+<svg class="size-4" fill="currentColor" viewbox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path></svg>
+</div>
+<div class="size-8 bg-background-light rounded flex items-center justify-center text-[#111318]">
+<span class="material-symbols-outlined !text-base">mail</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-2 pt-4 border-t border-[#e5e7eb]">
+<button class="flex-1 bg-white border border-[#e5e7eb] hover:border-primary hover:text-primary py-2 rounded-lg text-xs font-bold transition-all">Configure</button>
+<button class="p-2 text-[#616e89] hover:text-orange-600 hover:bg-orange-50 rounded-lg transition-all">
+<span class="material-symbols-outlined">pause_circle</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Configuration Modal (Overlay Mock) -->
+<div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background-dark/40 backdrop-blur-sm">
+<div class="bg-white rounded-2xl shadow-2xl w-full max-w-xl overflow-hidden">
+<div class="flex items-center justify-between px-8 py-6 border-b border-[#e5e7eb]">
+<div class="flex items-center gap-3">
+<div class="bg-primary/10 p-2 rounded-lg text-primary">
+<span class="material-symbols-outlined">settings_input_component</span>
+</div>
+<div>
+<h3 class="text-xl font-black text-[#111318]">Product Genesis Configuration</h3>
+<p class="text-xs text-[#616e89]">Modify autonomous operation rules</p>
+</div>
+</div>
+<button class="text-[#616e89] hover:text-[#111318]">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<div class="p-8">
+<!-- Autonomy Level -->
+<div class="mb-8">
+<label class="block text-sm font-bold text-[#111318] mb-4">Autonomy Level</label>
+<div class="grid grid-cols-1 gap-3">
+<label class="relative flex items-center p-4 border border-[#e5e7eb] rounded-xl cursor-pointer hover:bg-background-light transition-colors group">
+<input class="size-5 text-primary border-[#e5e7eb] focus:ring-primary" name="autonomy" type="radio"/>
+<div class="ml-4">
+<p class="text-sm font-bold text-[#111318]">Suggest Only</p>
+<p class="text-xs text-[#616e89]">Agent provides drafts but requires manual action.</p>
+</div>
+</label>
+<label class="relative flex items-center p-4 border-2 border-primary bg-primary/5 rounded-xl cursor-pointer transition-colors group">
+<input checked="" class="size-5 text-primary border-[#e5e7eb] focus:ring-primary" name="autonomy" type="radio"/>
+<div class="ml-4">
+<p class="text-sm font-bold text-[#111318]">Review Queue</p>
+<p class="text-xs text-[#616e89]">Action is queued. Admin must approve before live.</p>
+</div>
+<span class="ml-auto material-symbols-outlined text-primary">check_circle</span>
+</label>
+<label class="relative flex items-center p-4 border border-[#e5e7eb] rounded-xl cursor-pointer hover:bg-background-light transition-colors group">
+<input class="size-5 text-primary border-[#e5e7eb] focus:ring-primary" name="autonomy" type="radio"/>
+<div class="ml-4">
+<p class="text-sm font-bold text-[#111318]">Auto-Publish</p>
+<p class="text-xs text-[#616e89]">Fully autonomous. No manual review required.</p>
+</div>
+</label>
+</div>
+</div>
+<!-- Allowed Pages -->
+<div class="mb-8">
+<label class="block text-sm font-bold text-[#111318] mb-4">Allowed Working Scope</label>
+<div class="flex flex-wrap gap-4">
+<label class="flex items-center gap-2 cursor-pointer">
+<input checked="" class="rounded border-[#e5e7eb] text-primary focus:ring-primary" type="checkbox"/>
+<span class="text-sm font-medium">All Pages</span>
+</label>
+<label class="flex items-center gap-2 cursor-pointer">
+<input checked="" class="rounded border-[#e5e7eb] text-primary focus:ring-primary" type="checkbox"/>
+<span class="text-sm font-medium">CorelDRAW</span>
+</label>
+<label class="flex items-center gap-2 cursor-pointer">
+<input checked="" class="rounded border-[#e5e7eb] text-primary focus:ring-primary" type="checkbox"/>
+<span class="text-sm font-medium">AI Lab</span>
+</label>
+</div>
+</div>
+<!-- Notification Email -->
+<div class="mb-8">
+<label class="block text-sm font-bold text-[#111318] mb-2">Notification Email</label>
+<input class="w-full px-4 py-3 bg-background-light border-transparent rounded-lg text-sm focus:ring-2 focus:ring-primary focus:bg-white outline-none" placeholder="admin@digikraft.com" type="email"/>
+<p class="text-[10px] text-[#616e89] mt-2">The agent will send critical alerts to this address.</p>
+</div>
+<!-- Footer Actions -->
+<div class="flex items-center justify-between pt-6 border-t border-[#e5e7eb]">
+<button class="px-6 py-2.5 bg-background-light hover:bg-gray-200 text-[#111318] rounded-lg text-sm font-bold transition-all flex items-center gap-2">
+<span class="material-symbols-outlined !text-lg">play_arrow</span>
+                                Test Agent
+                            </button>
+<div class="flex gap-3">
+<button class="px-6 py-2.5 bg-white border border-[#e5e7eb] hover:bg-background-light text-[#111318] rounded-lg text-sm font-bold transition-all">Cancel</button>
+<button class="px-8 py-2.5 bg-primary hover:bg-blue-700 text-white rounded-lg text-sm font-bold transition-all shadow-md">Save Settings</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

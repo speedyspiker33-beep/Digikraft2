@@ -1,0 +1,9 @@
+{
+  "name": "ai-team-coordinator",
+  "version": "1.0.0",
+  "description": "Coordinates between Claude and OpenCode",
+  "scripts": {
+    "pre-ai-start": "node scripts/check-ai-status.js",
+    "ai-status": "node scripts/show-status.js"
+  }
+}
