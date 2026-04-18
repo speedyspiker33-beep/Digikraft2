@@ -1,0 +1,38 @@
+/**
+ * ADMIN PANEL - CSS VARIABLES
+ * Universal theming system
+ */
+
+:root {
+  /* Colors - Light Theme (Default) */
+  --primary: #4f46e5;
+  --primary-dark: #3730a3;
+  --primary-light: #6366f1;
+  --secondary: #6b7280;
+  --success: #10b981;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+  --info: #3b82f6;
+  
+  /* Backgrounds */
+  --bg-primary: #ffffff;
+  --bg-secondary: #f9fafb;
+  --bg-tertiary: #f3f4f6;
+  --bg-accent: rgba(79, 70, 229, 0.1);
+  --bg-overlay: rgba(0, 0, 0, 0.5);
+}
+
+/* Dark Theme override */
+:root.dark-theme {
+  --bg-primary: #1f2937;
+  --bg-secondary: #111827;
+  --bg-tertiary: #374151;
+  --bg-accent: rgba(99, 102, 241, 0.15);
+  --bg-overlay: rgba(0, 0, 0, 0.7);
+  --text-primary: #f9fafb;
+  --text-secondary: #d1d5db;
+  --text-tertiary: #9ca3af;
+  --border-color: #374151;
+  --border-light: #4b5563;
+  --hover-bg: rgba(255, 255, 255, 0.05);
+}

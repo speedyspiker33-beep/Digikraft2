@@ -1,0 +1,44 @@
+# Right Sidebar Configuration
+# Control what appears in the right sidebar and in what order
+
+sections:
+  - id: hot-offers
+    enabled: true
+    title: Hot Offers
+    icon: local_fire_department
+    order: 1
+    limit: 2
+    
+  - id: trending
+    enabled: true
+    title: Trending Now
+    icon: trending_up
+    order: 2
+    limit: 3
+    
+  - id: blog-feed
+    enabled: true
+    title: Latest Articles
+    icon: article
+    order: 3
+    limit: 2
+    
+  - id: newsletter
+    enabled: true
+    title: Stay Updated
+    icon: mail
+    order: 4
+
+# Featured Products for Hot Offers
+hotOffers:
+  - productId: "premium-ui-kit"
+    discount: 50
+    
+  - productId: "icon-set-collection"
+    discount: 50
+
+# Trending Products
+trending:
+  - productId: "minimalist-logos"
+  - productId: "social-media-pack"
+  - productId: "vintage-fonts"

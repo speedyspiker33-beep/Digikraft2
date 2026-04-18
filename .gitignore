@@ -1,0 +1,49 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Environment variables — NEVER commit these
+.env
+.env.local
+.env.production
+.env.*.local
+*.env
+
+# Database files — contain real user data
+digikraft.shop/backend/data/*.db
+
+# Uploads — large binary files
+digikraft.shop/backend/uploads/
+
+# Build outputs
+.nuxt/
+.output/
+dist/
+build/
+
+# Nuxt
+.nuxt
+.output
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor
+.vscode/
+*.swp
+*.swo
+
+# Kiro internal
+.kiro/settings/
+
+# Planning/temp files
+.planning/
