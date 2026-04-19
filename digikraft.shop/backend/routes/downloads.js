@@ -75,7 +75,7 @@ router.get('/:id/files/:fileId/url', authMiddleware, async (req, res) => {
     await dbUpdate(db.downloads, { id }, { $inc: { download_count: 1 }, $set: { last_download_at: new Date() } })
     await dbUpdate(db.products, { id: download.product_id }, { $inc: { downloads: 1 } })
 
-    const downloadUrl = `http://localhost:8080/api/downloads/serve/${id}/${fileId}`
+    const downloadUrl = `https://digikraft2-production.up.railway.app/api/downloads/serve/${id}/${fileId}`
     res.json({ success: true, data: { url: downloadUrl, expiresIn: 3600 } })
   } catch (err) {
     res.status(500).json({ success: false, error: err.message })

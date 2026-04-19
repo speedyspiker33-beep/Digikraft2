@@ -577,7 +577,7 @@ window.aiUploadPdf = async function(file) {
     formData.append('pdf', file);
 
     const token = localStorage.getItem('dk_admin_token') || '';
-    const res = await fetch('http://localhost:8080/api/v1/ai/analyze-pdf', {
+    const res = await fetch('https://digikraft2-production.up.railway.app/api/v1/ai/analyze-pdf', {
       method: 'POST',
       headers: { Authorization: `Bearer ${token}` },
       body: formData

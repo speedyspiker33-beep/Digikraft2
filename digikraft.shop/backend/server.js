@@ -21,12 +21,19 @@ app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }))
 
 app.use(cors({
   origin: [
-    'http://localhost:3000',  // Admin Panel
-    'http://localhost:3001',  // Main Website
+    'http://localhost:3000',  // Admin Panel (local)
+    'http://localhost:3001',  // Main Website (local)
     'http://localhost:1337',  // Strapi
     'http://localhost:5678',  // n8n
     'http://127.0.0.1:3000',
     'http://127.0.0.1:3001',
+    // Production — update these with your actual Vercel/Netlify URLs
+    /\.vercel\.app$/,
+    /\.netlify\.app$/,
+    /\.railway\.app$/,
+    'https://digikraft.shop',
+    'https://www.digikraft.shop',
+    'https://admin.digikraft.shop',
   ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],

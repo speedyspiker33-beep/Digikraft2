@@ -135,7 +135,7 @@ function renderIntegrations() {
     </div>
     <div class="card">
       <div class="card-header"><div class="card-title"><i class="fas fa-server" style="color:var(--blue);margin-right:8px"></i>Backend API</div></div>
-      <div class="form-group"><label class="form-label">API Base URL</label><input class="form-control" id="api-url" value="${s.apiUrl||'http://localhost:8080/api'}"></div>
+      <div class="form-group"><label class="form-label">API Base URL</label><input class="form-control" id="api-url" value="${s.apiUrl||'https://digikraft2-production.up.railway.app/api'}"></div>
       <div class="form-group"><label class="form-label">API Key</label><input class="form-control" id="api-key" type="password" value="${s.apiKey||''}"></div>
       <button class="btn btn-primary btn-sm" onclick="window.AdminModules.settings.saveIntegrations()"><i class="fas fa-save"></i> Save</button>
     </div>

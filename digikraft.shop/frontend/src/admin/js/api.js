@@ -1,7 +1,7 @@
 // ===== DigiKraft Admin API Client =====
 // All admin panel API calls go through this module → Backend at port 8080
 
-const API_BASE = 'http://localhost:8080/api'
+const API_BASE = 'https://digikraft2-production.up.railway.app/api'
 const ADMIN_TOKEN_KEY = 'dk_admin_token'
 
 const AdminAPI = {

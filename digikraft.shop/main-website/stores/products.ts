@@ -76,7 +76,7 @@ export const useProductsStore = defineStore('products', {
       
       // Try Backend API first (port 8080)
       try {
-        const response = await fetch('http://localhost:8080/api/v1/products?status=published&limit=200')
+        const response = await fetch('https://digikraft2-production.up.railway.app/api/v1/products?status=published&limit=200')
         if (response.ok) {
           const result = await response.json()
           if (result.success && result.data?.products?.length > 0) {
@@ -162,7 +162,7 @@ export const useProductsStore = defineStore('products', {
     async fetchCategories() {
       // Try Backend API first
       try {
-        const response = await fetch('http://localhost:8080/api/v1/categories')
+        const response = await fetch('https://digikraft2-production.up.railway.app/api/v1/categories')
         if (response.ok) {
           const result = await response.json()
           if (result.success && result.data?.length > 0) {
@@ -780,7 +780,7 @@ export const useProductsStore = defineStore('products', {
 
     async fetchProduct(id: number) {
       try {
-        const apiBase = 'http://localhost:8080/api'
+        const apiBase = 'https://digikraft2-production.up.railway.app/api'
         const product = await $fetch(`${apiBase}/public/products/${id}`)
         return product as Product
       } catch (error) {

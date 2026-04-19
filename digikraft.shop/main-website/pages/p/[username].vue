@@ -53,7 +53,7 @@ const donationLoading = ref(false)
 const donationSuccess = ref(false)
 const igPosts = ref<any[]>([])
 
-const API = 'http://localhost:8080/api/v1'
+const API = 'https://digikraft2-production.up.railway.app/api/v1'
 
 // ── FETCH PROFILE ─────────────────────────────────────────────────────────────
 onMounted(async () => {

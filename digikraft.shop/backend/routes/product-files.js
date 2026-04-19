@@ -70,7 +70,7 @@ router.post('/:productId/upload', adminMiddleware, upload.array('files', 10), as
       const imageExts = ['.jpg', '.jpeg', '.png', '.webp', '.gif', '.svg']
       const ext = path.extname(file.originalname).toLowerCase()
       if (imageExts.includes(ext)) {
-        const fullImageUrl = `http://localhost:8080${fileUrl}`
+        const fullImageUrl = `https://digikraft2-production.up.railway.app${fileUrl}`
         const currentImages = product.images || []
         if (!currentImages.includes(fullImageUrl)) {
           const { dbUpdate } = require('../db/database')
@@ -129,7 +129,7 @@ router.delete('/:productId/:fileId', adminMiddleware, async (req, res) => {
         const productId = parseInt(req.params.productId)
         const product = await dbFindOne(db.products, { id: productId })
         if (product) {
-          const fullUrl = `http://localhost:8080${file.url}`
+          const fullUrl = `https://digikraft2-production.up.railway.app${file.url}`
           const updatedImages = (product.images || []).filter(img => img !== fullUrl && img !== file.url)
           await dbUpdate(db.products, { id: productId }, { $set: { images: updatedImages, updated_at: new Date() } })
         }

@@ -92,7 +92,7 @@ async function checkAndClaim() {
   checking.value = true
   availability.value = null
   try {
-    const res = await fetch(`http://localhost:8080/api/v1/digiprofile/check/${u}`)
+    const res = await fetch(`https://digikraft2-production.up.railway.app/api/v1/digiprofile/check/${u}`)
     if (res.ok) {
       const data = await res.json()
       if (data.available === false) {

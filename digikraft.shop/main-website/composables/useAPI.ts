@@ -81,7 +81,7 @@ export const useAPI = () => {
   // ===== HEALTH =====
   const checkHealth = async () => {
     try {
-      const res = await $fetch<any>('http://localhost:8080/health')
+      const res = await $fetch<any>('https://digikraft2-production.up.railway.app/health')
       return res.status === 'ok'
     } catch {
       return false

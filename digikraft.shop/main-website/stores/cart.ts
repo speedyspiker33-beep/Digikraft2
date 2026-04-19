@@ -87,7 +87,7 @@ export const useCartStore = defineStore('cart', {
           quantity: i.quantity,
           category: i.product.category
         }))
-        await fetch('http://localhost:8080/api/customer/profile', {
+        await fetch('https://digikraft2-production.up.railway.app/api/customer/profile', {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
           body: JSON.stringify({ cart_items: cartPayload })

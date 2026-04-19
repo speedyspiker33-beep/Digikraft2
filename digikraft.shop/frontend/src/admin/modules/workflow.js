@@ -155,8 +155,8 @@ function renderAPISync() {
           <strong style="font-size:13px">${name}</strong>
         </div>
         <div style="display:flex;align-items:center;gap:6px">
-          <code style="background:var(--bg3);padding:3px 8px;border-radius:6px;font-size:11px;flex:1">http://localhost:8080/api${path}</code>
-          <button class="btn btn-secondary btn-sm btn-icon" onclick="navigator.clipboard.writeText('http://localhost:8080/api${path}');window.toast('Copied!','s')"><i class="fas fa-copy"></i></button>
+          <code style="background:var(--bg3);padding:3px 8px;border-radius:6px;font-size:11px;flex:1">https://digikraft2-production.up.railway.app/api${path}</code>
+          <button class="btn btn-secondary btn-sm btn-icon" onclick="navigator.clipboard.writeText('https://digikraft2-production.up.railway.app/api${path}');window.toast('Copied!','s')"><i class="fas fa-copy"></i></button>
         </div>
       </div>`).join('')}
     </div>

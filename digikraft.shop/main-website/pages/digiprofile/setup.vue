@@ -129,7 +129,7 @@ async function submit() {
 
   // Best-effort API call to public endpoint (no auth needed)
   try {
-    await fetch('http://localhost:8080/api/v1/digiprofile/public', {
+    await fetch('https://digikraft2-production.up.railway.app/api/v1/digiprofile/public', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),

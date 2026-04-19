@@ -55,7 +55,7 @@ export const useWishlistStore = defineStore('wishlist', {
           image: p.image,
           category: (p as any).category || ''
         }))
-        await fetch('http://localhost:8080/api/customer/profile', {
+        await fetch('https://digikraft2-production.up.railway.app/api/customer/profile', {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
           body: JSON.stringify({ wishlist: wishlistPayload })

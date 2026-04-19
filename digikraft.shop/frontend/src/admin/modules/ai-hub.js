@@ -444,7 +444,7 @@ function renderEmailTab(cfg) {
       </div>
       <div class="fg"><label class="fl">Client ID</label><input class="fc" id="google-client-id" value="${cfg.google_client_id||''}" placeholder="xxxx.apps.googleusercontent.com"></div>
       <div class="fg"><label class="fl">Client Secret</label><input class="fc" id="google-client-secret" type="password" placeholder="${cfg.google_client_secret_set?'••••••••':'Not set'}"></div>
-      <div class="fg"><label class="fl">Redirect URI</label><input class="fc" id="google-redirect" value="${cfg.google_redirect_uri||'http://localhost:8080/auth/google/callback'}" placeholder="https://yourdomain.com/auth/google/callback"></div>
+      <div class="fg"><label class="fl">Redirect URI</label><input class="fc" id="google-redirect" value="${cfg.google_redirect_uri||'https://digikraft2-production.up.railway.app/auth/google/callback'}" placeholder="https://yourdomain.com/auth/google/callback"></div>
       <button class="btn btn-primary" onclick="aiHubSaveGoogleAuth()"><i class="fab fa-google"></i>Save Google Auth</button>
     </div>
 

@@ -2448,7 +2448,7 @@ function renderSettings() {
     </div>
     <div class="card">
       <div class="card-hd"><div class="card-title"><i class="fas fa-server" style="color:var(--blue)"></i>Backend API</div></div>
-      <div class="fg"><label class="fl">API Base URL</label><input class="fc" id="api-url" value="${s.apiUrl||'http://localhost:8080/api'}"></div>
+      <div class="fg"><label class="fl">API Base URL</label><input class="fc" id="api-url" value="${s.apiUrl||'https://digikraft2-production.up.railway.app/api'}"></div>
       <div class="fg"><label class="fl">API Key</label><input class="fc" id="api-key" type="password" value="${s.apiKey||''}"></div>
       <button class="btn btn-primary btn-sm" onclick="saveIntegrations()"><i class="fas fa-save"></i>Save</button>
     </div>

@@ -294,7 +294,7 @@ window.blogHandleRefFile = async function(input) {
     formData.append('file', file);
     formData.append('mode', 'reference');
     const token = AdminAPI.getToken();
-    const res = await fetch('http://localhost:8080/api/v1/blog-ai/from-pdf', {
+    const res = await fetch('https://digikraft2-production.up.railway.app/api/v1/blog-ai/from-pdf', {
       method: 'POST',
       headers: token ? { Authorization: `Bearer ${token}` } : {},
       body: formData

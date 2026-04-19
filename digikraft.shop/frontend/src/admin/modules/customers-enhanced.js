@@ -407,7 +407,7 @@ window.issueCouponToCustomer = async function(customerId) {
 
   try {
     const token = AdminAPI.getToken();
-    const res = await fetch(`http://localhost:8080/api/v1/customers/${customerId}/coupon`, {
+    const res = await fetch(`https://digikraft2-production.up.railway.app/api/v1/customers/${customerId}/coupon`, {
       method: 'POST',
       headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({ discount_type: type, discount_value: parseFloat(value), expires_at: expiry||null, note })
@@ -467,7 +467,7 @@ window.approveAffiliate = async function(affiliateId) {
   if (!confirm('Approve this affiliate at 10% commission?')) return;
   try {
     const token = AdminAPI.getToken();
-    const res = await fetch(`http://localhost:8080/api/v1/affiliate/${affiliateId}/status`, {
+    const res = await fetch(`https://digikraft2-production.up.railway.app/api/v1/affiliate/${affiliateId}/status`, {
       method: 'PUT',
       headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({ status: 'approved', commission_rate: 10 })
@@ -482,7 +482,7 @@ window.rejectAffiliate = async function(affiliateId) {
   if (!confirm('Suspend this affiliate?')) return;
   try {
     const token = AdminAPI.getToken();
-    const res = await fetch(`http://localhost:8080/api/v1/affiliate/${affiliateId}/status`, {
+    const res = await fetch(`https://digikraft2-production.up.railway.app/api/v1/affiliate/${affiliateId}/status`, {
       method: 'PUT',
       headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({ status: 'rejected' })
@@ -498,7 +498,7 @@ window.setAffiliateRate = async function(affiliateId) {
   if (!rate || isNaN(rate)) return;
   try {
     const token = AdminAPI.getToken();
-    const res = await fetch(`http://localhost:8080/api/v1/affiliate/${affiliateId}/status`, {
+    const res = await fetch(`https://digikraft2-production.up.railway.app/api/v1/affiliate/${affiliateId}/status`, {
       method: 'PUT',
       headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({ status: 'approved', commission_rate: parseFloat(rate) })

@@ -218,7 +218,7 @@ router.get('/email', adminMiddleware, async (req, res) => {
         smtp_secure: s.smtp_secure || 'tls',
         google_client_id: s.google_client_id || '',
         google_client_secret_set: !!(s.google_client_secret),
-        google_redirect_uri: s.google_redirect_uri || 'http://localhost:8080/auth/google/callback',
+        google_redirect_uri: s.google_redirect_uri || 'https://digikraft2-production.up.railway.app/auth/google/callback',
         email_order_confirm: s.email_order_confirm !== 'false',
         email_welcome: s.email_welcome !== 'false',
         email_vendor_notify: s.email_vendor_notify !== 'false',
