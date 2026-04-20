@@ -65,16 +65,13 @@ export const useProductsStore = defineStore('products', {
 
   actions: {
     async fetchProducts(force = false) {
-      // Skip if we have products and not forcing refresh (cache for 5 minutes)
       const now = Date.now()
       if (!force && this.products.length > 0 && (now - this.lastFetch) < 300000) {
         return
       }
-      
       this.loading = true
       this.error = null
-      
-      // Try Backend API first (port 8080)
+
       try {
         const response = await fetch('https://digikraft2-production.up.railway.app/api/v1/products?status=published&limit=200')
         if (response.ok) {
@@ -90,7 +87,6 @@ export const useProductsStore = defineStore('products', {
               originalPrice: p.sale_price ? parseFloat(p.sale_price) : undefined,
               image: p.image || p.thumbnail || '',
               images: Array.isArray(p.images) ? p.images : [],
-              // Support both formats: category_ids array and categories enriched array
               categoryId: p.categories?.[0]?.id || (Array.isArray(p.category_ids) ? p.category_ids[0] : null) || 1,
               category_ids: Array.isArray(p.category_ids) ? p.category_ids : (p.categories ? p.categories.map((c: any) => c.id) : []),
               categories: p.categories || [],
@@ -105,62 +101,21 @@ export const useProductsStore = defineStore('products', {
               fileSize: p.file_size,
               ai_generated: p.ai_generated || false
             }))
-            this.loading = false
             this.lastFetch = Date.now()
+            this.loading = false
             return
           }
         }
       } catch (e) {
-        console.log('Backend API not available, trying Strapi...')
+        console.log('Backend API not available, using mock data')
       }
 
-      // Try Strapi as fallback
-      try {
-        const config = useRuntimeConfig()
-        const strapiUrl = config.public.strapiUrl || 'http://localhost:1337'
-        const apiToken = config.public.strapiApiToken
-        
-        const response = await fetch(`${strapiUrl}/api/products?populate=*`, {
-          headers: apiToken ? { Authorization: `Bearer ${apiToken}` } : {}
-        })
-        if (response.ok) {
-          const result = await response.json()
-          if (result.data && result.data.length > 0) {
-            this.products = result.data.map((p: any) => ({
-              id: p.id,
-              name: p.title || p.name,
-              slug: p.slug,
-              description: p.description,
-              shortDescription: p.shortDescription,
-              price: parseFloat(p.price) || 0,
-              originalPrice: p.salePrice ? parseFloat(p.salePrice) : undefined,
-              image: p.images?.[0]?.url ? `${strapiUrl}${p.images[0].url}` : '',
-              images: p.images?.map((img: any) => `${strapiUrl}${img.url}`) || [],
-              categoryId: p.category?.id || 1,
-              rating: 4.5,
-              reviewCount: 0,
-              sales: p.downloads || 0,
-              featured: p.featured || false,
-              tags: p.tags || [],
-              fileFormat: p.fileFormat,
-              fileSize: p.fileSize
-            }))
-            this.loading = false
-            this.lastFetch = Date.now()
-            return
-          }
-        }
-      } catch (e) {
-        console.log('Strapi not available, using mock data')
-      }
-      
-      // Fall back to mock data
+      // Fall back to mock data only if backend is down
       this.products = this.getMockProducts()
       this.loading = false
     },
 
     async fetchCategories() {
-      // Try Backend API first
       try {
         const response = await fetch('https://digikraft2-production.up.railway.app/api/v1/categories')
         if (response.ok) {
@@ -177,41 +132,15 @@ export const useProductsStore = defineStore('products', {
           }
         }
       } catch (e) {
-        console.log('Backend API not available for categories, trying Strapi...')
+        console.log('Backend API not available for categories')
       }
 
-      // Try Strapi as fallback
-      try {
-        const config = useRuntimeConfig()
-        const strapiUrl = config.public.strapiUrl || 'http://localhost:1337'
-        const apiToken = config.public.strapiApiToken
-        
-        const response = await fetch(`${strapiUrl}/api/categories?populate=*`, {
-          headers: apiToken ? { Authorization: `Bearer ${apiToken}` } : {}
-        })
-        if (response.ok) {
-          const result = await response.json()
-          if (result.data && result.data.length > 0) {
-            this.categories = result.data.map((c: any) => ({
-              id: c.id,
-              name: c.name,
-              slug: c.slug,
-              description: c.description || '',
-              productCount: 0
-            }))
-            return
-          }
-        }
-      } catch (e) {
-        console.log('Strapi not available for categories')
-      }
-      
       // Fall back to defaults
       this.categories = [
-        { id: 1, name: 'Graphics', slug: 'graphics', description: 'Premium graphics and illustrations', productCount: 18 },
-        { id: 2, name: 'Fonts', slug: 'fonts', description: 'Professional typefaces', productCount: 7 },
-        { id: 3, name: 'Templates', slug: 'templates', description: 'Ready-to-use templates', productCount: 10 },
-        { id: 4, name: '3D Assets', slug: '3d-assets', description: '3D models and icons', productCount: 4 }
+        { id: 1, name: 'Graphics', slug: 'graphics', description: 'Premium graphics and illustrations', productCount: 0 },
+        { id: 2, name: 'Fonts', slug: 'fonts', description: 'Professional typefaces', productCount: 0 },
+        { id: 3, name: 'Templates', slug: 'templates', description: 'Ready-to-use templates', productCount: 0 },
+        { id: 4, name: '3D Assets', slug: '3d-assets', description: '3D models and icons', productCount: 0 }
       ]
     },
 

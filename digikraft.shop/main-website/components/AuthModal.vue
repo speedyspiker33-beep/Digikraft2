@@ -102,9 +102,13 @@ const close = () => {
 }
 
 const handleLogin = async () => {
-  await authStore.login(loginForm.value.email, loginForm.value.password)
-  close()
-  loginForm.value = { email: '', password: '' }
+  const result = await authStore.login(loginForm.value.email, loginForm.value.password)
+  if (result.success) {
+    close()
+    loginForm.value = { email: '', password: '' }
+  } else {
+    alert(result.error || 'Invalid credentials')
+  }
 }
 
 const handleRegister = async () => {
@@ -112,13 +116,17 @@ const handleRegister = async () => {
     alert('Passwords do not match!')
     return
   }
-  await authStore.register(
+  const result = await authStore.register(
     `${registerForm.value.firstName} ${registerForm.value.lastName}`,
     registerForm.value.email,
     registerForm.value.password
   )
-  close()
-  registerForm.value = { firstName: '', lastName: '', email: '', password: '', confirmPassword: '' }
+  if (result.success) {
+    close()
+    registerForm.value = { firstName: '', lastName: '', email: '', password: '', confirmPassword: '' }
+  } else {
+    alert(result.error || 'Registration failed')
+  }
 }
 
 defineExpose({ open, close })
