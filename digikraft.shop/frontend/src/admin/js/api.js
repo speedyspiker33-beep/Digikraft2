@@ -196,7 +196,7 @@ const AdminAPI = {
   // ===== HEALTH CHECK =====
   async checkHealth() {
     try {
-      const res = await fetch('http://localhost:8080/health')
+      const res = await fetch('https://digikraft2-production.up.railway.app/health')
       return res.ok
     } catch {
       return false
@@ -211,11 +211,20 @@ window.AdminAPI = AdminAPI
 document.addEventListener('DOMContentLoaded', async () => {
   const healthy = await AdminAPI.checkHealth()
   if (!healthy) {
-    console.warn('[AdminAPI] Backend not reachable at http://localhost:8080')
-    console.warn('[AdminAPI] Run: node server.js in digikraft.shop/backend/')
+    console.warn('[AdminAPI] Backend not reachable')
     return
   }
-  console.log('[AdminAPI] ✅ Backend connected at http://localhost:8080')
+  console.log('[AdminAPI] ✅ Backend connected')
+
+  // Validate existing token — if invalid, clear and re-login
+  if (AdminAPI.getToken()) {
+    try {
+      await AdminAPI.getStats() // will throw 401 if token is stale
+    } catch (e) {
+      console.warn('[AdminAPI] Stale token, clearing and re-logging in...')
+      AdminAPI.clearToken()
+    }
+  }
 
   // Auto-login with default admin if no token stored
   if (!AdminAPI.getToken()) {
