@@ -27,10 +27,16 @@ app.use(cors({
     'http://localhost:5678',  // n8n
     'http://127.0.0.1:3000',
     'http://127.0.0.1:3001',
-    // Production — update these with your actual Vercel/Netlify URLs
-    /\.vercel\.app$/,
+    // Production — Netlify admin panel
+    'https://tubular-unicorn-371384.netlify.app',
+    'https://69e53e6fcd92699157692b2d--tubular-unicorn-371384.netlify.app',
+    // Production — Vercel main website
+    'https://digikraft-463l7lezd-speedyspiker33-4914s-projects.vercel.app',
+    // Wildcard patterns for all deploy previews
     /\.netlify\.app$/,
+    /\.vercel\.app$/,
     /\.railway\.app$/,
+    // Custom domain (when ready)
     'https://digikraft.shop',
     'https://www.digikraft.shop',
     'https://admin.digikraft.shop',
