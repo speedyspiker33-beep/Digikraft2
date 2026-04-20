@@ -30,7 +30,11 @@
         <span>Confirm password</span>
       </label>
       
-      <button class="submit" type="submit">Submit</button>
+      <button class="submit" type="submit" :disabled="loading">
+        {{ loading ? 'Creating account...' : 'Submit' }}
+      </button>
+      
+      <p v-if="error" style="color:red;font-size:13px;text-align:center;margin:0">{{ error }}</p>
       
       <p class="signin">Already have an account? <NuxtLink to="/login">Signin</NuxtLink></p>
     </form>
@@ -55,22 +59,31 @@ const formData = ref({
   confirmPassword: ''
 })
 
+const error = ref('')
+const loading = ref(false)
+
 const handleRegister = async () => {
+  error.value = ''
   if (formData.value.password !== formData.value.confirmPassword) {
-    alert('Passwords do not match!')
+    error.value = 'Passwords do not match!'
     return
   }
-
+  loading.value = true
   try {
-    await authStore.register(
+    const result = await authStore.register(
       `${formData.value.firstName} ${formData.value.lastName}`,
       formData.value.email,
       formData.value.password
     )
-    router.push('/')
-  } catch (error) {
-    console.error('Registration failed:', error)
-    alert('Registration failed. Please try again.')
+    if (result.success) {
+      router.push('/')
+    } else {
+      error.value = result.error || 'Registration failed'
+    }
+  } catch (e: any) {
+    error.value = 'Registration failed. Please try again.'
+  } finally {
+    loading.value = false
   }
 }
 </script>

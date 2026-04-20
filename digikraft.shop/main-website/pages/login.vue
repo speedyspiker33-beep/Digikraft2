@@ -14,7 +14,11 @@
         <span>Password</span>
       </label>
       
-      <button class="submit" type="submit">Submit</button>
+      <button class="submit" type="submit" :disabled="loading">
+        {{ loading ? 'Signing in...' : 'Submit' }}
+      </button>
+      
+      <p v-if="error" style="color:red;font-size:13px;text-align:center;margin:0">{{ error }}</p>
       
       <p class="signin">Don't have an account? <NuxtLink to="/register">Signup</NuxtLink></p>
       <p class="signin"><NuxtLink to="/forgot-password">Forgot Password?</NuxtLink></p>
@@ -37,13 +41,23 @@ const formData = ref({
   password: ''
 })
 
+const error = ref('')
+const loading = ref(false)
+
 const handleLogin = async () => {
+  error.value = ''
+  loading.value = true
   try {
-    await authStore.login(formData.value.email, formData.value.password)
-    router.push('/')
-  } catch (error) {
-    console.error('Login failed:', error)
-    alert('Login failed. Please check your credentials.')
+    const result = await authStore.login(formData.value.email, formData.value.password)
+    if (result.success) {
+      router.push('/')
+    } else {
+      error.value = result.error || 'Invalid credentials'
+    }
+  } catch (e: any) {
+    error.value = 'Login failed. Please try again.'
+  } finally {
+    loading.value = false
   }
 }
 </script>
