@@ -56,7 +56,7 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     public: {
-      apiBase: process.env.NUXT_PUBLIC_API_BASE || 'http://localhost:8080/api',
+      apiBase: process.env.NUXT_PUBLIC_API_BASE || 'https://digikraft2-production.up.railway.app/api',
       strapiUrl: process.env.NUXT_PUBLIC_STRAPI_URL || 'http://localhost:1337',
       strapiApiToken: process.env.STRAPI_API_TOKEN || ''
     }
