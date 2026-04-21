@@ -2,6 +2,7 @@ const express = require('express')
 const router = express.Router()
 const { db, dbFind, dbFindOne, dbInsert, dbUpdate, dbRemove, dbCount, getNextId } = require('../db/database')
 const { adminMiddleware, optionalAuth } = require('../middleware/auth')
+const { generateUniqueSKU } = require('../services/sku-generator')
 
 function slugify(s) {
   return (s || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
@@ -166,8 +167,14 @@ router.post('/', adminMiddleware, async (req, res) => {
 
     const id = await getNextId(db.products)
 
-    // Generate intelligent SKU
-    const sku = generateSKU(title, categories, file_format, id)
+    // Generate intelligent SKU — unique across all products
+    const catName = Array.isArray(categories) && categories.length
+      ? (await dbFindOne(db.categories, { id: categories[0] }))?.name || ''
+      : ''
+    const sku = await generateUniqueSKU(
+      { title, tags: Array.isArray(tags) ? tags : [], category: catName },
+      async (s) => !!(await dbFindOne(db.products, { sku: s }))
+    )
 
     const product = {
       id,
@@ -360,6 +367,23 @@ router.post('/:id/generate-pdf', adminMiddleware, async (req, res) => {
     })
   } catch (err) {
     console.error('[PDF Gen Error]', err.message)
+    res.status(500).json({ success: false, error: err.message })
+  }
+})
+
+// POST /api/v1/products/generate-sku — preview SKU before saving
+router.post('/generate-sku', adminMiddleware, async (req, res) => {
+  try {
+    const { title, tags, category_id } = req.body
+    const catName = category_id
+      ? (await dbFindOne(db.categories, { id: parseInt(category_id) }))?.name || ''
+      : ''
+    const sku = await generateUniqueSKU(
+      { title: title || '', tags: Array.isArray(tags) ? tags : [], category: catName },
+      async (s) => !!(await dbFindOne(db.products, { sku: s }))
+    )
+    res.json({ success: true, data: { sku } })
+  } catch (err) {
     res.status(500).json({ success: false, error: err.message })
   }
 })

@@ -286,16 +286,12 @@ Return ONLY valid JSON, no markdown, no explanation.`
   }
 
   generateDescription(title, category, excerpt) {
-    return `<p><strong>${title}</strong> is a premium ${category.toLowerCase()} designed for creative professionals and designers.</p>
-<p>${excerpt || `This high-quality ${category.toLowerCase()} pack includes everything you need to create stunning designs quickly and efficiently.`}</p>
-<p><strong>What's Included:</strong></p>
-<ul>
-<li>High-resolution files ready for immediate use</li>
-<li>Multiple formats for maximum compatibility</li>
-<li>Detailed documentation and usage guide</li>
-<li>Commercial license for client projects</li>
-</ul>
-<p>Perfect for graphic designers, web developers, and creative agencies looking for professional-grade assets.</p>`
+    const catLower = category.toLowerCase()
+    const intro = excerpt && excerpt.length > 20
+      ? excerpt.substring(0, 200)
+      : `A premium ${catLower} designed for creative professionals and designers.`
+
+    return `${title} is a high-quality ${catLower} built for professional use.\n\n${intro}\n\nThis product includes high-resolution files ready for immediate use, multiple formats for maximum compatibility, and a commercial license for client projects.\n\nPerfect for graphic designers, web developers, and creative agencies looking for professional-grade digital assets.`
   }
 
   detectFileFormat(content) {

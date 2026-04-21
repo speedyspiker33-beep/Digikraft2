@@ -53,6 +53,7 @@ window.ProductsView = {
       list = list.filter(p =>
         p.title?.toLowerCase().includes(q) ||
         p.slug?.toLowerCase().includes(q) ||
+        p.sku?.toLowerCase().includes(q) ||
         JSON.stringify(p.tags || []).toLowerCase().includes(q)
       )
     }
@@ -96,7 +97,7 @@ window.ProductsView = {
 
     <!-- SEARCH + CATEGORY FILTER -->
     <div class="ttb" style="margin-bottom:14px">
-      <div class="ts"><i class="fas fa-search"></i><input type="text" placeholder="Search products..." oninput="ProductsView.setFilter('search',this.value)" id="prod-search" value="${this._searchQ}"></div>
+      <div class="ts"><i class="fas fa-search"></i><input type="text" placeholder="Search products, SKU..." oninput="ProductsView.setFilter('search',this.value)" id="prod-search" value="${this._searchQ}"></div>
       <select class="fc" style="width:auto" onchange="ProductsView.setFilter('cat',this.value)">
         <option value="">All Categories</option>
         ${this._categories.map(c => `<option value="${c.id}" ${this._filterCat===String(c.id)?'selected':''}>${c.name}</option>`).join('')}
@@ -152,7 +153,8 @@ window.ProductsView = {
         ${p.ai_generated ? `<div style="position:absolute;bottom:8px;right:8px;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;font-size:9px;font-weight:700;padding:2px 7px;border-radius:99px">✦ AI</div>` : ''}
       </div>
       <div style="padding:12px">
-        <div style="font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:4px" title="${p.title}">${p.title}</div>
+        <div style="font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:2px" title="${p.title}">${p.title}</div>
+        ${p.sku ? `<div style="font-size:10px;font-family:monospace;color:var(--accent);background:var(--bg3);padding:1px 6px;border-radius:4px;display:inline-block;margin-bottom:4px">${p.sku}</div>` : ''}
         <div style="font-size:11px;color:var(--text3);margin-bottom:8px">${catName} · ${p.downloads || 0} downloads</div>
         <div style="display:flex;align-items:center;justify-content:space-between">
           <div style="font-size:13px">${price}</div>
@@ -171,7 +173,7 @@ window.ProductsView = {
   _renderTable(products) {
     if (!products.length) return `<div class="es"><i class="fas fa-box-open"></i><p>No products found.</p></div>`
     return `<div class="card"><div class="tw"><table>
-      <thead><tr><th>Product</th><th>Category</th><th>Price</th><th>Downloads</th><th>Status</th><th>Featured</th><th>Actions</th></tr></thead>
+      <thead><tr><th>Product</th><th>SKU</th><th>Category</th><th>Price</th><th>Downloads</th><th>Status</th><th>Featured</th><th>Actions</th></tr></thead>
       <tbody>${products.map(p => {
         const catName = p.categories?.[0]?.name || p.category || 'Uncategorized'
         const price = p.sale_price
@@ -182,6 +184,7 @@ window.ProductsView = {
             <img src="${p.image||'https://via.placeholder.com/40'}" style="width:40px;height:40px;border-radius:8px;object-fit:cover" onerror="this.src='https://via.placeholder.com/40'">
             <div class="pi"><strong>${p.title}</strong><span>${p.slug}</span>${p.ai_generated?'<span style="font-size:9px;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;padding:1px 6px;border-radius:99px;margin-left:4px">✦ AI</span>':''}</div>
           </div></td>
+          <td><code style="font-size:10px;background:var(--bg3);padding:2px 6px;border-radius:4px;color:var(--accent)">${p.sku || '—'}</code></td>
           <td><span class="tag tp">${catName}</span></td>
           <td>${price}</td>
           <td>${p.downloads||0}</td>
@@ -248,6 +251,12 @@ window.ProductsView = {
         setTimeout(() => { if (catSelect) catSelect.value = product.categories[0].id }, 50)
       }
       document.getElementById('prod-modal-title').textContent = 'Edit Product'
+      // Show SKU badge in modal header
+      const skuBadge = document.getElementById('prod-sku-badge')
+      if (skuBadge) {
+        skuBadge.textContent = product.sku || 'No SKU'
+        skuBadge.style.display = product.sku ? 'inline-block' : 'none'
+      }
       prevImg(product.image || '')
       this._loadExistingFiles(product.id)
     } else if (form) {
