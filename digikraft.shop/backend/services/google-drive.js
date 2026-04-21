@@ -21,9 +21,10 @@ async function uploadToDrive(buffer, filename) {
   const filePath = path.join(UPLOAD_DIR, safeName)
   fs.writeFileSync(filePath, buffer)
 
-  const baseUrl = process.env.BACKEND_URL || process.env.RAILWAY_PUBLIC_DOMAIN 
-    ? `https://${process.env.RAILWAY_PUBLIC_DOMAIN}` 
-    : 'https://digikraft2-production.up.railway.app'
+  const baseUrl = process.env.BACKEND_URL || 
+    (process.env.RAILWAY_PUBLIC_DOMAIN 
+      ? `https://${process.env.RAILWAY_PUBLIC_DOMAIN}` 
+      : 'http://localhost:8080')
   const directLink = `${baseUrl}/uploads/pdfs/${safeName}`
 
   return {
