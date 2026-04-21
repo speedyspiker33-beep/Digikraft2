@@ -268,7 +268,7 @@ Return ONLY valid JSON, no markdown, no explanation.`
     return {
       name: title.substring(0, 80),
       slug,
-      short_description: scraped.description.substring(0, 120).replace(/<[^>]*>/g, '').trim() || `${title} — a ${catLower} for automation and digital workflows`,
+      short_description: scraped.description.substring(0, 120).replace(/<[^>]*>/g, '').trim() || `${title} — a ${category.toLowerCase()} for automation and digital workflows`,
       description: this.generateDescription(title, category, scraped.description),
       price,
       original_price: Math.round(price * 1.3 / 10) * 10,
