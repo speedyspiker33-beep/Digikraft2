@@ -377,6 +377,7 @@ textarea.fc{resize:vertical;min-height:80px}
         <button class="tab" onclick="prodTab('details',this)">Details</button>
         <button class="tab" onclick="prodTab('seo',this)">SEO</button>
         <button class="tab" onclick="prodTab('articles',this)"><i class="fas fa-newspaper" style="margin-right:4px"></i>Articles</button>
+        <button class="tab" onclick="prodTab('pdf',this)"><i class="fas fa-file-pdf" style="margin-right:4px;color:#ef4444"></i>PDF Generator</button>
       </div>
       <form id="prod-form" onsubmit="saveProd(event)">
         <input type="hidden" name="id" id="pid">
@@ -531,6 +532,66 @@ textarea.fc{resize:vertical;min-height:80px}
           </div>
           <!-- Selected articles preview -->
           <div id="article-selected-preview" style="margin-top:12px"></div>
+        </div>
+
+        <!-- PDF GENERATOR TAB -->
+        <div id="pt-pdf" style="display:none">
+          <div style="background:linear-gradient(135deg,rgba(239,68,68,.12),rgba(245,158,11,.08));border:1px solid rgba(239,68,68,.3);border-radius:10px;padding:14px;margin-bottom:16px;display:flex;align-items:flex-start;gap:10px">
+            <i class="fas fa-file-pdf" style="color:#ef4444;font-size:20px;margin-top:2px;flex-shrink:0"></i>
+            <div>
+              <div style="font-size:13px;font-weight:700;margin-bottom:4px">Generate Branded Delivery PDF</div>
+              <div style="font-size:11px;color:var(--text3)">Create a professional thank-you PDF with product details and download link. Auto-filled from your product data. Uploads directly to Google Drive — URL auto-fills in the Media tab.</div>
+            </div>
+          </div>
+
+          <!-- Auto-filled fields (read-only) -->
+          <div class="fgrid" style="margin-bottom:12px">
+            <div class="fg">
+              <label class="fl"><i class="fas fa-box" style="margin-right:4px;color:var(--accent)"></i>Product Name <span style="color:var(--green);font-size:10px">(auto-filled)</span></label>
+              <input class="fc" id="pdf-prod-name" readonly style="background:var(--bg4);cursor:default" placeholder="Fill Basic Info tab first">
+            </div>
+            <div class="fg">
+              <label class="fl"><i class="fas fa-link" style="margin-right:4px;color:var(--accent)"></i>Download Link <span style="color:var(--green);font-size:10px">(auto-filled)</span></label>
+              <input class="fc" id="pdf-prod-link" readonly style="background:var(--bg4);cursor:default" placeholder="Fill Media tab → Product URL first">
+            </div>
+          </div>
+
+          <!-- Optional fields -->
+          <div class="fgrid" style="margin-bottom:12px">
+            <div class="fg">
+              <label class="fl">Customer Name <span style="color:var(--text3);font-size:10px">(optional)</span></label>
+              <input class="fc" id="pdf-cust-name" placeholder="e.g. John Doe">
+            </div>
+            <div class="fg">
+              <label class="fl">Order ID <span style="color:var(--text3);font-size:10px">(optional)</span></label>
+              <input class="fc" id="pdf-order-id-prod" placeholder="e.g. ORD-001">
+            </div>
+          </div>
+
+          <div style="display:flex;align-items:center;gap:10px;padding:12px;background:var(--bg3);border-radius:9px;margin-bottom:16px">
+            <input type="checkbox" id="pdf-include-showcase" checked style="width:16px;height:16px;accent-color:var(--accent)">
+            <div>
+              <div style="font-size:12px;font-weight:600">Include product showcase</div>
+              <div style="font-size:10px;color:var(--text3)">Add 4 featured products from your store as marketing</div>
+            </div>
+          </div>
+
+          <button type="button" class="btn btn-primary" onclick="ProductsView.generatePDF()" style="width:100%;justify-content:center;padding:11px">
+            <i class="fas fa-cloud-upload-alt"></i> Generate & Upload to Drive
+          </button>
+
+          <div id="pdf-gen-status" style="margin-top:12px;padding:12px;border-radius:9px;display:none;font-size:12px;font-weight:600"></div>
+
+          <!-- Instructions -->
+          <div style="margin-top:16px;padding:12px;background:var(--bg3);border-radius:9px;font-size:11px;color:var(--text3)">
+            <div style="font-weight:700;color:var(--text2);margin-bottom:8px"><i class="fas fa-info-circle" style="margin-right:4px;color:var(--blue)"></i>Workflow</div>
+            <div style="display:flex;flex-direction:column;gap:6px">
+              <div><span style="background:var(--accent);color:#fff;border-radius:99px;padding:1px 7px;font-size:10px;font-weight:700;margin-right:6px">1</span>Fill Basic Info tab (name, description, price)</div>
+              <div><span style="background:var(--accent);color:#fff;border-radius:99px;padding:1px 7px;font-size:10px;font-weight:700;margin-right:6px">2</span>Come here → click <strong style="color:var(--text1)">Generate & Upload to Drive</strong></div>
+              <div><span style="background:var(--green);color:#fff;border-radius:99px;padding:1px 7px;font-size:10px;font-weight:700;margin-right:6px">✓</span>PDF uploads to Google Drive automatically & URL fills in Media tab</div>
+              <div><span style="background:var(--accent);color:#fff;border-radius:99px;padding:1px 7px;font-size:10px;font-weight:700;margin-right:6px">3</span>Save product ✓</div>
+            </div>
+          </div>
         </div>
       </form>
     </div>
@@ -969,7 +1030,7 @@ function globalSearch(q){if(q.length>2)toast(`Searching for "${q}"...`,'i')}
 
 // ===== PRODUCT FORM TABS =====
 function prodTab(t, btn) {
-  ['basic','media','details','seo'].forEach(x=>{
+  ['basic','media','details','seo','articles','pdf'].forEach(x=>{
     document.getElementById('pt-'+x).style.display = x===t?'block':'none';
   });
   document.querySelectorAll('#prod-tabs .tab').forEach(b=>b.classList.remove('on'));

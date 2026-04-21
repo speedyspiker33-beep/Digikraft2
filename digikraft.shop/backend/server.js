@@ -85,6 +85,8 @@ app.use('/api/v1/notifications', require('./routes/notifications'))
 app.use('/api/v1/ai', require('./routes/ai-automation'))
 app.use('/api/v1/ai-hub', require('./routes/ai-hub'))
 app.use('/api/v1/email-templates', require('./routes/email-templates'))
+// PDF Delivery
+app.use('/api/v1/pdf-delivery', require('./routes/pdf-delivery'))
 // Downloads & Auth
 app.use('/api/downloads', require('./routes/downloads'))
 app.use('/api/customer', require('./routes/auth'))

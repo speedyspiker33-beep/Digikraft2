@@ -539,6 +539,86 @@ window.ProductsView = {
     }
   },
 
+  async generatePDF() {
+    const form = document.getElementById('prod-form')
+    const productName = form?.title?.value?.trim() || 'Your Digital Product'
+    const productImage = form?.image?.value?.trim() || ''
+    const downloadLink = form?.product_url?.value?.trim() || ''
+    const customerName = document.getElementById('pdf-cust-name')?.value?.trim() || 'Valued Customer'
+    const orderId = document.getElementById('pdf-order-id-prod')?.value?.trim() || ''
+    const includeShowcase = document.getElementById('pdf-include-showcase')?.checked ?? true
+
+    const statusDiv = document.getElementById('pdf-gen-status')
+
+    const setStatus = (type, html) => {
+      if (!statusDiv) return
+      const colors = { warn: ['rgba(245,158,11,.12)', 'var(--yellow)'], loading: ['rgba(99,102,241,.12)', 'var(--accent)'], success: ['rgba(34,197,94,.12)', 'var(--green)'], error: ['rgba(239,68,68,.12)', 'var(--red)'] }
+      const [bg, color] = colors[type] || colors.loading
+      statusDiv.style.display = 'block'
+      statusDiv.style.background = bg
+      statusDiv.style.color = color
+      statusDiv.innerHTML = html
+    }
+
+    if (statusDiv) statusDiv.style.display = 'none'
+
+    // Step 1: Generate PDF + upload to Google Drive
+    setStatus('loading', '<i class="fas fa-spinner fa-spin"></i> Generating PDF and uploading to Google Drive…')
+
+    try {
+      const res = await fetch('http://localhost:8080/api/v1/pdf-delivery/generate-and-upload', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          productUrl: downloadLink || '',
+          productName,
+          productImage,
+          downloadLink: downloadLink || '',
+          customerName,
+          orderId,
+          includeRelated: includeShowcase
+        })
+      })
+
+      const data = await res.json()
+      if (!res.ok || !data.success) throw new Error(data.error || `HTTP ${res.status}`)
+
+      const { directLink, webViewLink, filename } = data.data
+
+      // Step 2: Auto-fill the Product URL field in the Media tab
+      const productUrlInput = document.getElementById('product-url-input') || document.querySelector('[name="product_url"]')
+      if (productUrlInput) {
+        productUrlInput.value = directLink
+        productUrlInput.dispatchEvent(new Event('input'))
+      }
+
+      // Step 3: Update the read-only link field in this tab
+      const linkEl = document.getElementById('pdf-prod-link')
+      if (linkEl) linkEl.value = directLink
+
+      setStatus('success', `
+        <i class="fas fa-check-circle"></i> PDF uploaded to Google Drive!
+        <div style="margin-top:8px;display:flex;flex-direction:column;gap:6px">
+          <div style="font-size:11px;color:var(--text2)">
+            <strong>File:</strong> ${filename}
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px">
+            <a href="${webViewLink}" target="_blank" class="btn btn-sm btn-secondary" style="font-size:11px;text-decoration:none">
+              <i class="fas fa-external-link-alt"></i> View on Drive
+            </a>
+          </div>
+          <div style="font-size:10px;color:var(--green);margin-top:4px">
+            ✓ Download URL auto-filled in Media tab — just save the product!
+          </div>
+        </div>`)
+
+      toast('PDF uploaded to Drive & URL auto-filled!', 's')
+    } catch (e) {
+      setStatus('error', `<i class="fas fa-times-circle"></i> Failed: ${e.message}`)
+      toast('PDF upload failed: ' + e.message, 'e')
+    }
+  },
+
   async importSampleData() {
     if (!confirm('Import sample products into the database?')) return
     const mockProducts = [
@@ -649,7 +729,7 @@ window.prevImg = function(url) {
 
 // ===== PRODUCT TAB SWITCHER =====
 window.prodTab = function(tab, btn) {
-  ['basic','media','details','seo','articles'].forEach(t => {
+  ['basic','media','details','seo','articles','pdf'].forEach(t => {
     const el = document.getElementById('pt-' + t)
     if (el) el.style.display = t === tab ? 'block' : 'none'
   })
@@ -657,6 +737,19 @@ window.prodTab = function(tab, btn) {
   if (btn) btn.classList.add('on')
   if (tab === 'media') setTimeout(() => ProductsView._renderFileList(), 50)
   if (tab === 'articles') setTimeout(() => ProductsView._loadArticlePicker(), 50)
+  if (tab === 'pdf') {
+    // Auto-fill PDF tab from product form data
+    const form = document.getElementById('prod-form')
+    if (form) {
+      const nameEl = document.getElementById('pdf-prod-name')
+      const linkEl = document.getElementById('pdf-prod-link')
+      if (nameEl) nameEl.value = form.title?.value || ''
+      if (linkEl) linkEl.value = form.product_url?.value || ''
+    }
+    // Reset status
+    const status = document.getElementById('pdf-gen-status')
+    if (status) status.style.display = 'none'
+  }
 }
 
 // ===== AI GENERATE for product modal =====

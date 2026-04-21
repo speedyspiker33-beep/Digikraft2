@@ -135,17 +135,24 @@ Keywords: ${scraped.keywords}
 Page Content (excerpt): ${scraped.bodyText.substring(0, 1500)}
 
 CRITICAL RULES:
-- description must be PLAIN TEXT only — no HTML tags, no <p>, no <strong>, no <ul>, no symbols
-- Write description as clean readable paragraphs separated by newlines
-- short_description must be one clean sentence, no HTML
+- description must be PLAIN TEXT only — absolutely NO HTML tags (<p>, <strong>, <ul>, <li>, <br>, etc.)
+- description must be concise and specific — describe exactly what this product IS and what it DOES
+- Do NOT use generic filler like "premium templates designed for creative professionals" or "everything you need"
+- Do NOT invent features not evident from the page content
+- Write 2-3 short focused paragraphs separated by \\n\\n
+- Paragraph 1: what the product is and its main purpose
+- Paragraph 2: key features or what's included (specific, not generic)
+- Paragraph 3 (optional): who it's for / use cases
+- short_description: one specific sentence about what this product actually does, no HTML
+- If the product name contains a filename or URL fragment, clean it into a proper readable title
 - All text fields must be clean, professional, and symbol-free
 
 Generate a JSON object with these exact fields:
 {
-  "name": "Product name (clear, marketable, max 80 chars)",
+  "name": "Product name (clear, marketable, max 80 chars — clean filenames into proper titles)",
   "slug": "url-friendly-slug",
-  "short_description": "One clean sentence description (max 120 chars, no HTML)",
-  "description": "Full plain text description (3-4 short paragraphs separated by \\n\\n, highlight features and benefits, NO HTML tags, NO symbols like <> or &)",
+  "short_description": "One specific sentence about what this product does (max 120 chars, no HTML, no generic phrases)",
+  "description": "Plain text only — 2-3 focused paragraphs (\\n\\n between them). Specific to this product. NO HTML. NO generic filler.",
   "price": number (in INR, suggest based on content type and market),
   "original_price": number (original price before discount, 20-40% higher than price),
   "category": "one of: Graphics, Fonts, Templates, UI Kits, Plugins, 3D Assets, Courses, Tools",
@@ -153,8 +160,8 @@ Generate a JSON object with these exact fields:
   "seo_title": "SEO optimized title (max 60 chars)",
   "seo_description": "SEO meta description (max 160 chars)",
   "seo_keywords": "comma separated keywords",
-  "features": ["feature 1", "feature 2", "feature 3", "feature 4", "feature 5"],
-  "file_format": "e.g. PDF, AI, PSD, TTF, ZIP",
+  "features": ["specific feature 1", "specific feature 2", "specific feature 3", "specific feature 4", "specific feature 5"],
+  "file_format": "e.g. PDF, AI, PSD, TTF, ZIP, JSON",
   "license_type": "one of: Personal, Commercial, Extended",
   "thumbnail_prompt": "Detailed prompt to generate a thumbnail image for this product"
 }
@@ -261,7 +268,7 @@ Return ONLY valid JSON, no markdown, no explanation.`
     return {
       name: title.substring(0, 80),
       slug,
-      short_description: scraped.description.substring(0, 120) || `Premium ${category.toLowerCase()} for creative professionals`,
+      short_description: scraped.description.substring(0, 120).replace(/<[^>]*>/g, '').trim() || `${title} — a ${catLower} for automation and digital workflows`,
       description: this.generateDescription(title, category, scraped.description),
       price,
       original_price: Math.round(price * 1.3 / 10) * 10,
@@ -287,11 +294,13 @@ Return ONLY valid JSON, no markdown, no explanation.`
 
   generateDescription(title, category, excerpt) {
     const catLower = category.toLowerCase()
-    const intro = excerpt && excerpt.length > 20
-      ? excerpt.substring(0, 200)
-      : `A premium ${catLower} designed for creative professionals and designers.`
+    const cleanTitle = title.replace(/[-_]/g, ' ').replace(/\.(json|pdf|zip|ai|psd|fig)$/i, '').trim()
 
-    return `${title} is a high-quality ${catLower} built for professional use.\n\n${intro}\n\nThis product includes high-resolution files ready for immediate use, multiple formats for maximum compatibility, and a commercial license for client projects.\n\nPerfect for graphic designers, web developers, and creative agencies looking for professional-grade digital assets.`
+    const intro = excerpt && excerpt.length > 20
+      ? excerpt.substring(0, 200).replace(/<[^>]*>/g, '').trim()
+      : `${cleanTitle} is a ${catLower} tool built for automation and workflow efficiency.`
+
+    return `${intro}\n\nThis product comes ready to use with clear setup instructions. It is designed to save time and reduce manual effort for common tasks.\n\nSuitable for developers, designers, and teams looking to automate repetitive workflows.`
   }
 
   detectFileFormat(content) {
@@ -307,19 +316,22 @@ Return ONLY valid JSON, no markdown, no explanation.`
   }
 
   normalizeProductData(parsed, scraped) {
+    // Strip any HTML tags the AI may have included despite instructions
+    const stripHtml = (str) => (str || '').replace(/<[^>]*>/g, '').replace(/&[a-z]+;/gi, ' ').replace(/\s+/g, ' ').trim()
+
     return {
-      name: parsed.name || scraped.title || 'Digital Product',
+      name: stripHtml(parsed.name || scraped.title || 'Digital Product').substring(0, 80),
       slug: parsed.slug || parsed.name?.toLowerCase().replace(/[^a-z0-9]+/g, '-') || 'product',
-      short_description: parsed.short_description || scraped.description?.substring(0, 120) || '',
-      description: parsed.description || '',
+      short_description: stripHtml(parsed.short_description || scraped.description?.substring(0, 120) || ''),
+      description: stripHtml(parsed.description || ''),
       price: parsed.price || 499,
       original_price: parsed.original_price || Math.round((parsed.price || 499) * 1.3),
       category: parsed.category || 'Templates',
       tags: Array.isArray(parsed.tags) ? parsed.tags : [],
-      seo_title: parsed.seo_title || parsed.name || '',
-      seo_description: parsed.seo_description || scraped.description?.substring(0, 160) || '',
+      seo_title: stripHtml(parsed.seo_title || parsed.name || '').substring(0, 60),
+      seo_description: stripHtml(parsed.seo_description || scraped.description?.substring(0, 160) || '').substring(0, 160),
       seo_keywords: parsed.seo_keywords || '',
-      features: Array.isArray(parsed.features) ? parsed.features : [],
+      features: Array.isArray(parsed.features) ? parsed.features.map(f => stripHtml(f)) : [],
       file_format: parsed.file_format || 'ZIP',
       license_type: parsed.license_type || 'Commercial',
       thumbnail_prompt: parsed.thumbnail_prompt || '',

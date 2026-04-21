@@ -47,3 +47,7 @@ desktop.ini
 
 # Planning/temp files
 .planning/
+
+# Google Service Account keys - never commit these
+digikraft.shop/g-drive-*.json
+*.service-account.json
