@@ -440,18 +440,43 @@ textarea.fc{resize:vertical;min-height:80px}
             <label class="fl">Additional Images (one URL per line)</label>
             <textarea class="fc" name="images" rows="3" placeholder="https://img1.jpg&#10;https://img2.jpg"></textarea>
           </div>
-          <div style="border:2px dashed var(--border);border-radius:10px;padding:28px;text-align:center;cursor:pointer;transition:.2s"
-            id="file-drop-zone"
-            onclick="document.getElementById('file-inp').click()"
-            ondragover="event.preventDefault();this.style.borderColor='var(--accent)'"
-            ondragleave="this.style.borderColor='var(--border)'"
-            ondrop="event.preventDefault();this.style.borderColor='var(--border)';ProductsView._handleDrop(event)">
-            <i class="fas fa-cloud-upload-alt" style="font-size:32px;color:var(--text3);display:block;margin-bottom:8px"></i>
-            <p style="color:var(--text2);font-size:13px;font-weight:600">Click or drag product files here</p>
-            <small style="color:var(--text3)">ZIP, RAR, PDF, PSD, AI, FIG, CDR · Max 500MB per file</small>
+          <!-- PRODUCT DELIVERY: Link OR File Upload -->
+          <div style="background:var(--bg3);border-radius:10px;padding:14px;margin-bottom:12px">
+            <div style="font-size:12px;font-weight:700;color:var(--text3);margin-bottom:10px;text-transform:uppercase">Product Delivery</div>
+            <div style="display:flex;gap:8px;margin-bottom:12px">
+              <button type="button" onclick="ProductsView._setDeliveryMode('link',this)" id="delivery-link-btn"
+                style="flex:1;padding:8px;border-radius:8px;border:2px solid var(--accent);background:var(--accent);color:#fff;font-size:12px;font-weight:700;cursor:pointer">
+                🔗 Product URL / Link
+              </button>
+              <button type="button" onclick="ProductsView._setDeliveryMode('file',this)" id="delivery-file-btn"
+                style="flex:1;padding:8px;border-radius:8px;border:2px solid var(--border);background:var(--bg2);color:var(--text2);font-size:12px;font-weight:700;cursor:pointer">
+                📁 Upload File
+              </button>
+            </div>
+            <!-- Link delivery -->
+            <div id="delivery-link-section">
+              <div class="fg">
+                <label class="fl">Product Download URL <span style="font-size:10px;color:var(--text3)">(Google Drive, Dropbox, direct link, etc.)</span></label>
+                <input class="fc" name="product_url" id="product-url-input" placeholder="https://drive.google.com/file/d/..." type="url">
+                <div style="font-size:11px;color:var(--text3);margin-top:4px">Customer will receive this link after purchase. Make sure it's accessible.</div>
+              </div>
+            </div>
+            <!-- File upload -->
+            <div id="delivery-file-section" style="display:none">
+              <div style="border:2px dashed var(--border);border-radius:10px;padding:28px;text-align:center;cursor:pointer;transition:.2s"
+                id="file-drop-zone"
+                onclick="document.getElementById('file-inp').click()"
+                ondragover="event.preventDefault();this.style.borderColor='var(--accent)'"
+                ondragleave="this.style.borderColor='var(--border)'"
+                ondrop="event.preventDefault();this.style.borderColor='var(--border)';ProductsView._handleDrop(event)">
+                <i class="fas fa-cloud-upload-alt" style="font-size:32px;color:var(--text3);display:block;margin-bottom:8px"></i>
+                <p style="color:var(--text2);font-size:13px;font-weight:600">Click or drag product files here</p>
+                <small style="color:var(--text3)">ZIP, RAR, PDF, PSD, AI, FIG, CDR · Max 500MB per file</small>
+              </div>
+              <input type="file" id="file-inp" multiple style="display:none" accept=".zip,.rar,.7z,.pdf,.psd,.ai,.fig,.cdr,.eps,.svg,.png,.jpg,.mp4,.mov">
+              <div id="file-list"></div>
+            </div>
           </div>
-          <input type="file" id="file-inp" multiple style="display:none" accept=".zip,.rar,.7z,.pdf,.psd,.ai,.fig,.cdr,.eps,.svg,.png,.jpg,.mp4,.mov">
-          <div id="file-list"></div>
         </div>
         <!-- DETAILS -->
         <div id="pt-details" style="display:none">

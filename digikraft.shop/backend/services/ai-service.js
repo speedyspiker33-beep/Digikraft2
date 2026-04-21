@@ -125,7 +125,7 @@ class AIService {
   }
 
   buildPrompt(scraped, url) {
-    return `You are a digital product listing expert for an Indian digital marketplace (DigiKraft.shop). 
+    return `You are a digital product listing expert for DigiKraft.shop, an Indian digital marketplace.
 Analyze this product page and generate a complete product listing in JSON format.
 
 URL: ${url}
@@ -134,12 +134,18 @@ Meta Description: ${scraped.description}
 Keywords: ${scraped.keywords}
 Page Content (excerpt): ${scraped.bodyText.substring(0, 1500)}
 
+CRITICAL RULES:
+- description must be PLAIN TEXT only — no HTML tags, no <p>, no <strong>, no <ul>, no symbols
+- Write description as clean readable paragraphs separated by newlines
+- short_description must be one clean sentence, no HTML
+- All text fields must be clean, professional, and symbol-free
+
 Generate a JSON object with these exact fields:
 {
   "name": "Product name (clear, marketable, max 80 chars)",
   "slug": "url-friendly-slug",
-  "short_description": "One line description (max 120 chars)",
-  "description": "Full HTML description (3-4 paragraphs, highlight features, benefits, use cases)",
+  "short_description": "One clean sentence description (max 120 chars, no HTML)",
+  "description": "Full plain text description (3-4 short paragraphs separated by \\n\\n, highlight features and benefits, NO HTML tags, NO symbols like <> or &)",
   "price": number (in INR, suggest based on content type and market),
   "original_price": number (original price before discount, 20-40% higher than price),
   "category": "one of: Graphics, Fonts, Templates, UI Kits, Plugins, 3D Assets, Courses, Tools",

@@ -227,6 +227,15 @@ window.ProductsView = {
       if (form.images) {
         form.images.value = Array.isArray(product.images) ? product.images.join('\n') : (product.images || '')
       }
+      // Populate product URL if set
+      const urlInput = document.getElementById('product-url-input')
+      if (urlInput) urlInput.value = product.product_url || ''
+      // Set delivery mode based on what's set
+      if (product.product_url) {
+        setTimeout(() => ProductsView._setDeliveryMode('link'), 50)
+      } else {
+        setTimeout(() => ProductsView._setDeliveryMode('file'), 50)
+      }
       form.fileFormat.value = product.file_format || ''
       form.fileSize.value = product.file_size || ''
       form.version.value = product.version || '1.0.0'
@@ -502,6 +511,25 @@ window.ProductsView = {
     </div>`
   },
 
+  // ── DELIVERY MODE TOGGLE ──────────────────────────────────────────────────
+  _setDeliveryMode(mode, btn) {
+    const linkSection = document.getElementById('delivery-link-section')
+    const fileSection = document.getElementById('delivery-file-section')
+    const linkBtn = document.getElementById('delivery-link-btn')
+    const fileBtn = document.getElementById('delivery-file-btn')
+    if (mode === 'link') {
+      if (linkSection) linkSection.style.display = 'block'
+      if (fileSection) fileSection.style.display = 'none'
+      if (linkBtn) { linkBtn.style.background = 'var(--accent)'; linkBtn.style.color = '#fff'; linkBtn.style.borderColor = 'var(--accent)' }
+      if (fileBtn) { fileBtn.style.background = 'var(--bg2)'; fileBtn.style.color = 'var(--text2)'; fileBtn.style.borderColor = 'var(--border)' }
+    } else {
+      if (linkSection) linkSection.style.display = 'none'
+      if (fileSection) fileSection.style.display = 'block'
+      if (fileBtn) { fileBtn.style.background = 'var(--accent)'; fileBtn.style.color = '#fff'; fileBtn.style.borderColor = 'var(--accent)' }
+      if (linkBtn) { linkBtn.style.background = 'var(--bg2)'; linkBtn.style.color = 'var(--text2)'; linkBtn.style.borderColor = 'var(--border)' }
+    }
+  },
+
   async importSampleData() {
     if (!confirm('Import sample products into the database?')) return
     const mockProducts = [
@@ -549,7 +577,8 @@ window.saveProd = async function(e) {
     seo_title: fd.get('seoTitle')?.trim() || '',
     seo_desc: fd.get('seoDesc')?.trim() || '',
     categories: catId ? [catId] : [],
-    linked_blog_slugs: ProductsView._linkedArticleSlugs || []
+    linked_blog_slugs: ProductsView._linkedArticleSlugs || [],
+    product_url: document.getElementById('product-url-input')?.value?.trim() || ''
   }
 
   if (!payload.title) { toast('Product name is required', 'e'); return }

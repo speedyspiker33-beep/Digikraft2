@@ -36,7 +36,15 @@ router.get('/', authMiddleware, async (req, res) => {
           size: f.file_size,
           version: f.version,
           uploadDate: new Date(f.created_at)
-        })) : [{
+        })) : product?.product_url ? [{
+          id: 'link',
+          name: `${product?.title || 'product'} — Download Link`,
+          format: 'LINK',
+          size: 'N/A',
+          version: product?.version || '1.0.0',
+          uploadDate: new Date(d.created_at),
+          download_url: product.product_url
+        }] : [{
           id: 'default',
           name: `${product?.title || 'product'}.zip`,
           format: 'ZIP',
