@@ -562,6 +562,12 @@ window.ProductsView = {
 
     if (statusDiv) statusDiv.style.display = 'none'
 
+    // Warn if no download link — but still allow generation
+    if (!downloadLink) {
+      setStatus('warn', '<i class="fas fa-exclamation-triangle"></i> No download link set. Go to Media tab → paste your Google Drive / product link first, then come back here. Generating anyway with empty link...')
+      await new Promise(r => setTimeout(r, 2000)) // give user 2s to read
+    }
+
     // Step 1: Generate PDF + upload
     setStatus('loading', '<i class="fas fa-spinner fa-spin"></i> Generating PDF and uploading…')
 
@@ -745,9 +751,15 @@ window.prodTab = function(tab, btn) {
       const nameEl = document.getElementById('pdf-prod-name')
       const linkEl = document.getElementById('pdf-prod-link')
       if (nameEl) nameEl.value = form.title?.value || ''
-      if (linkEl) linkEl.value = form.product_url?.value || ''
+      // Read from the actual product URL input (id=product-url-input)
+      const productUrlInput = document.getElementById('product-url-input')
+      if (linkEl) {
+        const currentLink = productUrlInput?.value?.trim() || ''
+        linkEl.value = currentLink
+        linkEl.style.borderColor = currentLink ? 'var(--green)' : 'var(--red)'
+        linkEl.title = currentLink ? 'This link will be embedded in the PDF' : 'No link set — go to Media tab first'
+      }
     }
-    // Reset status
     const status = document.getElementById('pdf-gen-status')
     if (status) status.style.display = 'none'
   }
