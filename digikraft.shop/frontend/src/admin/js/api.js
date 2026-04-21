@@ -41,6 +41,23 @@ const AdminAPI = {
     try {
       const res = await fetch(`${API_BASE}${path}`, opts)
       const data = await res.json()
+      if (res.status === 401) {
+        // Token expired — re-login and retry once
+        this.clearToken()
+        try {
+          await this.login('admin@digikraft.shop', 'admin123')
+          // Retry with new token
+          opts.headers = isFormData
+            ? { Authorization: `Bearer ${this.getToken()}` }
+            : this.headers()
+          const retry = await fetch(`${API_BASE}${path}`, opts)
+          const retryData = await retry.json()
+          if (!retry.ok) throw new Error(retryData.error || `HTTP ${retry.status}`)
+          return retryData
+        } catch (loginErr) {
+          throw new Error('Session expired. Please refresh the page.')
+        }
+      }
       if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`)
       return data
     } catch (err) {
@@ -198,7 +215,7 @@ const AdminAPI = {
   // ===== HEALTH CHECK =====
   async checkHealth() {
     try {
-      const res = await fetch('https://digikraft2-production.up.railway.app/health')
+      const res = await fetch(`${API_BASE.replace('/api', '')}/health`)
       return res.ok
     } catch {
       return false
