@@ -562,13 +562,14 @@ window.ProductsView = {
 
     if (statusDiv) statusDiv.style.display = 'none'
 
-    // Step 1: Generate PDF + upload to Google Drive
-    setStatus('loading', '<i class="fas fa-spinner fa-spin"></i> Generating PDF and uploading to Google Drive…')
+    // Step 1: Generate PDF + upload
+    setStatus('loading', '<i class="fas fa-spinner fa-spin"></i> Generating PDF and uploading…')
 
     try {
-      const res = await fetch('http://localhost:8080/api/v1/pdf-delivery/generate-and-upload', {
+      const token = AdminAPI.getToken()
+      const res = await fetch(`${API_BASE}/v1/pdf-delivery/generate-and-upload`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
         body: JSON.stringify({
           productUrl: downloadLink || '',
           productName,
