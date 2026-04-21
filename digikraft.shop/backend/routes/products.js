@@ -7,6 +7,37 @@ function slugify(s) {
   return (s || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
 }
 
+// ── INTELLIGENT SKU GENERATOR ─────────────────────────────────────────────────
+// Format: DK-[CAT]-[TYPE]-[YY]-[SEQ]
+// Example: DK-GFX-LOGO-25-001, DK-FNT-SANS-25-014, DK-PLG-CDR-25-001
+function generateSKU(title, categoryIds, fileFormat, productId) {
+  const year = new Date().getFullYear().toString().slice(-2)
+  const seq = String(productId).padStart(3, '0')
+
+  const catCodes = { 1:'GFX', 2:'FNT', 3:'TPL', 4:'3DA', 5:'UIK', 6:'PLG', 7:'CRS', 8:'TOL' }
+  const catId = Array.isArray(categoryIds) ? categoryIds[0] : categoryIds
+  const catCode = catCodes[catId] || 'DIG'
+
+  const t = (title || '').toLowerCase()
+  let typeCode = 'GEN'
+  if (t.match(/logo|brand/)) typeCode = 'LOGO'
+  else if (t.match(/\bicon/)) typeCode = 'ICON'
+  else if (t.match(/font|typeface|serif|sans|script|calligraph/)) typeCode = 'FONT'
+  else if (t.match(/template|kit/)) typeCode = 'TMPL'
+  else if (t.match(/mockup/)) typeCode = 'MOCK'
+  else if (t.match(/illustrat/)) typeCode = 'ILLU'
+  else if (t.match(/pattern|texture/)) typeCode = 'PATN'
+  else if (t.match(/plugin|extension|addon/)) typeCode = 'PLUG'
+  else if (t.match(/bundle|pack|collection/)) typeCode = 'BNDL'
+  else if (t.match(/social|instagram|facebook|tiktok/)) typeCode = 'SOCL'
+  else if (t.match(/presentation|slide|keynote|powerpoint/)) typeCode = 'PRES'
+  else if (t.match(/ui kit|ux|dashboard/)) typeCode = 'UIUX'
+  else if (t.match(/3d|model|render/)) typeCode = '3DAS'
+  else if (fileFormat) typeCode = fileFormat.toUpperCase().replace(/[^A-Z]/g, '').slice(0, 4)
+
+  return `DK-${catCode}-${typeCode}-${year}-${seq}`
+}
+
 // GET /api/v1/products
 router.get('/', optionalAuth, async (req, res) => {
   try {
@@ -120,7 +151,7 @@ router.post('/', adminMiddleware, async (req, res) => {
       title, slug, description, short_description, price, sale_price,
       image, images, file_format, file_size, compatibility, version,
       license, tags, featured, show_on_main, satellite_page, status,
-      seo_title, seo_desc, categories
+      seo_title, seo_desc, categories, product_url, linked_blog_slugs
     } = req.body
 
     if (!title || price === undefined) return res.status(400).json({ success: false, error: 'Title and price required' })
@@ -134,8 +165,13 @@ router.post('/', adminMiddleware, async (req, res) => {
     }
 
     const id = await getNextId(db.products)
+
+    // Generate intelligent SKU
+    const sku = generateSKU(title, categories, file_format, id)
+
     const product = {
       id,
+      sku,
       title, slug: productSlug,
       description: description || '',
       short_description: short_description || '',
@@ -156,6 +192,8 @@ router.post('/', adminMiddleware, async (req, res) => {
       seo_title: seo_title || '',
       seo_desc: seo_desc || '',
       category_ids: categories || [],
+      product_url: product_url || '',
+      linked_blog_slugs: linked_blog_slugs || [],
       downloads: 0,
       rating: 4.5,
       review_count: 0,
@@ -260,6 +298,68 @@ router.post('/bulk-import', adminMiddleware, async (req, res) => {
 
     res.json({ success: true, message: `Imported ${imported} products`, imported })
   } catch (err) {
+    res.status(500).json({ success: false, error: err.message })
+  }
+})
+
+// POST /api/v1/products/generate-sku — preview SKU before saving
+router.post('/generate-sku', adminMiddleware, async (req, res) => {
+  try {
+    const { title, categories, file_format } = req.body
+    const id = await getNextId(db.products)
+    const sku = generateSKU(title, categories, file_format, id)
+    res.json({ success: true, data: { sku } })
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message })
+  }
+})
+
+// POST /api/v1/products/:id/generate-pdf — generate PDF + upload to Drive
+router.post('/:id/generate-pdf', adminMiddleware, async (req, res) => {
+  try {
+    const productId = parseInt(req.params.id)
+    const product = await dbFindOne(db.products, { id: productId })
+    if (!product) return res.status(404).json({ success: false, error: 'Product not found' })
+
+    const { downloadLink } = req.body
+    if (!downloadLink) return res.status(400).json({ success: false, error: 'downloadLink required' })
+
+    // Get Google Drive credentials from settings
+    const driveCreds = await dbFindOne(db.settings, { key: 'google_drive_credentials' })
+    if (!driveCreds || !driveCreds.value) {
+      return res.status(400).json({ success: false, error: 'Google Drive not configured. Add service account credentials in Settings → Integrations.' })
+    }
+
+    const pdfGen = require('../services/pdf-generator')
+    await pdfGen.initDrive(driveCreds.value)
+
+    // Get featured products for marketing
+    const featured = await dbFind(db.products, { featured: true, status: 'published' }, {}, 4)
+
+    // Generate PDF
+    const pdfBuffer = await pdfGen.generateProductPDF(product, downloadLink, featured)
+
+    // Upload to Drive
+    const driveFolderId = (await dbFindOne(db.settings, { key: 'google_drive_folder_id' }))?.value || null
+    const driveResult = await pdfGen.uploadToDrive(pdfBuffer, `${product.sku || product.slug}.pdf`, driveFolderId)
+
+    // Update product with Drive link
+    await dbUpdate(db.products, { id: productId }, {
+      $set: { product_url: driveResult.downloadLink, updated_at: new Date() }
+    })
+
+    res.json({
+      success: true,
+      data: {
+        driveLink: driveResult.downloadLink,
+        viewLink: driveResult.viewLink,
+        filename: driveResult.filename,
+        fileId: driveResult.fileId
+      },
+      message: `PDF uploaded to Google Drive as ${driveResult.filename}`
+    })
+  } catch (err) {
+    console.error('[PDF Gen Error]', err.message)
     res.status(500).json({ success: false, error: err.message })
   }
 })
