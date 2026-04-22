@@ -826,21 +826,69 @@ window.AITools = {
 
     if (!prompt) { toast('Enter an image prompt first', 'w'); return }
 
-    this._setStatus('ait-thumb-status', 'loading', '<i class="fas fa-spinner fa-spin"></i> Generating thumbnail with AI... (this takes ~15 seconds)')
+    this._setStatus('ait-thumb-status', 'loading', '<i class="fas fa-spinner fa-spin"></i> Generating thumbnail with AI... (15-30 seconds)')
     document.getElementById('ait-thumb-preview').style.display = 'none'
 
     try {
       const data = await AdminAPI.post('/v1/ai/generate-thumbnail', { prompt, style })
       if (!data.success) throw new Error(data.error)
 
-      const imgUrl = data.data.image_url
+      // Handle both response formats
+      const imgUrl = data.data?.image_url || data.thumbnail_url
+      if (!imgUrl) throw new Error('No image URL returned')
+
       document.getElementById('ait-thumb-img').src = imgUrl
       document.getElementById('ait-thumb-preview').style.display = 'block'
-      this._setStatus('ait-thumb-status', 'success', '<i class="fas fa-check-circle"></i> Thumbnail generated! Click "Use as Product Thumbnail" to apply it.')
+      const source = data.data?.source || 'ai'
+      this._setStatus('ait-thumb-status', 'success',
+        `<i class="fas fa-check-circle"></i> Image generated via ${source}! Click "Use as Thumbnail" to apply.`)
       this._generatedImageUrl = imgUrl
 
     } catch (e) {
       this._setStatus('ait-thumb-status', 'error', `<i class="fas fa-times-circle"></i> ${e.message}`)
+    }
+  },
+
+  async generatePromptFromUrl() {
+    const url = document.getElementById('ait-url')?.value?.trim()
+    const form = document.getElementById('prod-form')
+    const title = form?.title?.value?.trim() || ''
+
+    if (!url && !title) { toast('Enter a product URL or fill the product name first', 'w'); return }
+
+    this._setStatus('ait-analyze-status', 'loading', '<i class="fas fa-spinner fa-spin"></i> Analyzing product and generating image prompt...')
+
+    try {
+      const data = await AdminAPI.post('/v1/ai/generate-prompt', {
+        url: url || undefined,
+        title: title || undefined,
+        category: document.getElementById('prod-cat-select')?.options[document.getElementById('prod-cat-select')?.selectedIndex]?.text || ''
+      })
+      if (!data.success) throw new Error(data.error)
+
+      const { prompt, source_image } = data.data
+
+      // Fill the prompt fields
+      document.getElementById('ait-prompt-text').value = prompt
+      document.getElementById('ait-thumb-prompt').value = prompt
+      document.getElementById('ait-prompt-result').style.display = 'block'
+
+      // If source had an OG image, show it as option
+      if (source_image) {
+        this._setStatus('ait-analyze-status', 'success',
+          `<i class="fas fa-check-circle"></i> Prompt generated! Original image found — you can use it or generate a new AI one.`)
+        // Offer to use the OG image directly
+        document.getElementById('ait-thumb-img').src = source_image
+        document.getElementById('ait-thumb-preview').style.display = 'block'
+        this._generatedImageUrl = source_image
+      } else {
+        this._setStatus('ait-analyze-status', 'success',
+          `<i class="fas fa-check-circle"></i> Image prompt generated! Click "Generate Image" to create the thumbnail.`)
+      }
+
+      toast('Prompt ready — click Generate Image!', 's')
+    } catch (e) {
+      this._setStatus('ait-analyze-status', 'error', `<i class="fas fa-times-circle"></i> ${e.message}`)
     }
   },
 

@@ -13,6 +13,7 @@ const router = express.Router()
 const multer = require('multer')
 const path = require('path')
 const fs = require('fs')
+const axios = require('axios')
 const { db, dbFind, dbFindOne, dbInsert, dbUpdate, dbCount, getNextId } = require('../db/database')
 const { adminMiddleware } = require('../middleware/auth')
 const aiService = require('../services/ai-service')
@@ -312,36 +313,139 @@ router.put('/config', adminMiddleware, async (req, res) => {
   }
 })
 
+// ── GENERATE IMAGE PROMPT FROM URL ───────────────────────────────────────────
+router.post('/generate-prompt', adminMiddleware, async (req, res) => {
+  try {
+    const { url, title, category, description } = req.body
+
+    let productInfo = { title: title || '', category: category || 'Digital Product', description: description || '' }
+
+    // Scrape URL if provided
+    if (url) {
+      try {
+        const scraped = await aiService.scrapeUrl(url)
+        productInfo.title = productInfo.title || scraped.title
+        productInfo.description = productInfo.description || scraped.description
+        productInfo.image = scraped.image
+      } catch {}
+    }
+
+    const name = productInfo.title || 'Digital Product'
+    const cat = productInfo.category
+    const desc = productInfo.description?.substring(0, 200) || ''
+
+    // Build a rich, specific image generation prompt
+    const styleMap = {
+      'Graphics': 'vector illustration, colorful icons, design elements floating',
+      'Fonts': 'typography showcase, letters arranged artistically, font specimen',
+      'Templates': 'clean document layout, organized sections, professional template preview',
+      'UI Kits': 'UI components floating, cards, buttons, dark/light theme, app mockup',
+      'Plugins': 'software interface, code editor, plugin panel, tech aesthetic',
+      '3D Assets': '3D rendered objects, isometric view, studio lighting, shadows',
+      'Courses': 'learning materials, books, laptop, knowledge concept, education',
+      'Tools': 'software dashboard, charts, productivity tools, clean interface'
+    }
+    const catStyle = styleMap[cat] || 'digital product, modern design, clean layout'
+
+    const prompt = `Professional e-commerce product thumbnail for "${name}". ${catStyle}. ${desc ? 'Product features: ' + desc.substring(0, 100) + '.' : ''} High quality, centered composition, gradient background, modern aesthetic, suitable for digital marketplace listing. No text overlays.`
+
+    res.json({ success: true, data: { prompt, title: name, category: cat, source_image: productInfo.image || null } })
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message })
+  }
+})
+
 // ── GENERATE THUMBNAIL ────────────────────────────────────────────────────────
 router.post('/generate-thumbnail', adminMiddleware, async (req, res) => {
-  const { url, title, category } = req.body
+  const { prompt, style = 'modern', url, title, category } = req.body
 
-  // Try to fetch OG image from URL
-  if (url) {
+  // Build the image prompt
+  let imagePrompt = prompt
+
+  // If no prompt given but URL provided, analyze it first
+  if (!imagePrompt && url) {
     try {
       const scraped = await aiService.scrapeUrl(url)
+      // If OG image exists, return it directly
       if (scraped.image) {
-        return res.json({ success: true, thumbnail_url: scraped.image, source: 'og_image' })
+        return res.json({
+          success: true,
+          data: { image_url: scraped.image, prompt: '', source: 'og_image' }
+        })
       }
+      // Build prompt from scraped data
+      imagePrompt = `Professional product thumbnail for "${scraped.title || title || 'Digital Product'}", digital product, ${category || 'software'}, modern design, clean background`
     } catch {}
   }
 
-  // Return a placeholder with category-based gradient
-  const categoryColors = {
-    'Graphics': '6366f1,8b5cf6',
-    'Fonts': '3b82f6,06b6d4',
-    'Templates': '10b981,059669',
-    'UI Kits': 'f59e0b,ef4444',
-    'Plugins': 'ec4899,f43f5e',
-    '3D Assets': '14b8a6,0ea5e9',
-    'Courses': '8b5cf6,6366f1',
-    'Tools': '64748b,475569'
+  if (!imagePrompt && title) {
+    imagePrompt = `Professional product thumbnail for "${title}", digital product, ${category || 'software'}, modern design`
   }
-  const colors = categoryColors[category] || '6366f1,8b5cf6'
-  const encodedTitle = encodeURIComponent((title || 'Product').substring(0, 30))
-  const thumbnailUrl = `https://via.placeholder.com/800x600/${colors.split(',')[0]}/ffffff?text=${encodedTitle}`
 
-  res.json({ success: true, thumbnail_url: thumbnailUrl, source: 'placeholder' })
+  if (!imagePrompt) {
+    return res.status(400).json({ success: false, error: 'prompt or url/title is required' })
+  }
+
+  // Style modifiers
+  const styleMap = {
+    modern: 'modern clean design, white background, professional',
+    dark: 'dark theme, dark background, neon accents, futuristic',
+    gradient: 'colorful gradient background, vibrant colors, eye-catching',
+    minimal: 'minimal flat design, simple, clean, lots of whitespace',
+    '3d': '3D isometric illustration, depth, shadows, professional render',
+    professional: 'corporate professional, business style, clean layout'
+  }
+  const styleHint = styleMap[style] || styleMap.modern
+  const fullPrompt = `${imagePrompt}, ${styleHint}, high quality, e-commerce product image, 1:1 ratio`
+
+  // Try Pollinations.ai first (free, no key needed, always works)
+  try {
+    const encoded = encodeURIComponent(fullPrompt)
+    const seed = Math.floor(Math.random() * 999999)
+    const pollinationsUrl = `https://image.pollinations.ai/prompt/${encoded}?width=800&height=800&seed=${seed}&nologo=true&enhance=true`
+    return res.json({
+      success: true,
+      data: { image_url: pollinationsUrl, prompt: fullPrompt, source: 'pollinations' }
+    })
+  } catch {}
+
+  // Fallback: DALL-E via OpenRouter
+  const openrouterKey = process.env.OPENROUTER_API_KEY
+  if (openrouterKey) {
+    try {
+      const response = await axios.post(
+        'https://openrouter.ai/api/v1/images/generations',
+        { model: 'openai/dall-e-3', prompt: fullPrompt, n: 1, size: '1024x1024' },
+        {
+          headers: {
+            'Authorization': `Bearer ${openrouterKey}`,
+            'Content-Type': 'application/json',
+            'HTTP-Referer': 'http://localhost:3000',
+            'X-Title': 'DigiKraft Admin'
+          },
+          timeout: 60000
+        }
+      )
+      const imageUrl = response.data.data[0]?.url
+      if (imageUrl) {
+        return res.json({ success: true, data: { image_url: imageUrl, prompt: fullPrompt, source: 'dalle3' } })
+      }
+    } catch (e) {
+      console.error('[DALL-E Error]', e.message)
+    }
+  }
+
+  // Last fallback: styled placeholder
+  const categoryColors = {
+    'Graphics': '6366f1', 'Fonts': '3b82f6', 'Templates': '10b981',
+    'UI Kits': 'f59e0b', 'Plugins': 'ec4899', '3D Assets': '14b8a6',
+    'Courses': '8b5cf6', 'Tools': '64748b'
+  }
+  const color = categoryColors[category] || '6366f1'
+  const encodedTitle = encodeURIComponent((title || prompt || 'Product').substring(0, 30))
+  const placeholderUrl = `https://via.placeholder.com/800x800/${color}/ffffff?text=${encodedTitle}`
+
+  res.json({ success: true, data: { image_url: placeholderUrl, prompt: fullPrompt, source: 'placeholder' } })
 })
 
 module.exports = router

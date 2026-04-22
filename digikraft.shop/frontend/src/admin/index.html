@@ -612,9 +612,13 @@ textarea.fc{resize:vertical;min-height:80px}
             <div style="display:flex;gap:8px">
               <input type="url" id="ait-url" class="fc" placeholder="https://gumroad.com/... or any product page" style="flex:1">
               <button type="button" class="btn btn-primary btn-sm" onclick="AITools.analyzeUrl()" style="white-space:nowrap;background:linear-gradient(135deg,#8b5cf6,#6366f1)">
-                <i class="fas fa-robot"></i> Analyze
+                <i class="fas fa-robot"></i> Analyze & Fill
+              </button>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="AITools.generatePromptFromUrl()" style="white-space:nowrap" title="Generate image prompt only">
+                <i class="fas fa-image"></i> Get Prompt
               </button>
             </div>
+            <div style="font-size:10px;color:var(--text3);margin-top:4px">Analyze fills the whole form · Get Prompt only generates the image prompt</div>
           </div>
 
           <!-- Generated Prompt Output -->
