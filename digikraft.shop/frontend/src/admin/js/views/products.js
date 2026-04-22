@@ -728,6 +728,49 @@ window.saveProd = async function(e) {
 
 // ===== AI TOOLS (URL Analyzer + Thumbnail Creator) =====
 window.AITools = {
+  // Auto-detect template based on product category
+  _autoSelectTemplate() {
+    const catSelect = document.getElementById('prod-cat-select')
+    const templateSelect = document.getElementById('ait-thumb-template')
+    if (!catSelect || !templateSelect) return
+    
+    const selectedCatText = catSelect.options[catSelect.selectedIndex]?.text.toLowerCase() || ''
+    
+    const categoryToTemplate = {
+      'ui kit': 'ui-kit',
+      'ui kits': 'ui-kit',
+      'components': 'ui-kit',
+      'font': 'font-pack',
+      'fonts': 'font-pack',
+      'typography': 'font-pack',
+      'logo': 'logo-bundle',
+      'logos': 'logo-bundle',
+      'branding': 'logo-bundle',
+      '3d': '3d-asset',
+      '3d asset': '3d-asset',
+      'mockup': '3d-asset',
+      'mockups': '3d-asset',
+      'template': 'template',
+      'templates': 'template',
+      'layout': 'template',
+      'course': 'course',
+      'courses': 'course',
+      'tutorial': 'course'
+    }
+    
+    let selectedTemplate = 'custom'
+    
+    for (const [cat, tmpl] of Object.entries(categoryToTemplate)) {
+      if (selectedCatText.includes(cat)) {
+        selectedTemplate = tmpl
+        break
+      }
+    }
+    
+    templateSelect.value = selectedTemplate
+  },
+  
+  _lastAnalysis: null,
   _lastAnalysis: null,
 
   _setStatus(elId, type, html) {
@@ -823,44 +866,39 @@ window.AITools = {
   async generateThumbnail() {
     const prompt = document.getElementById('ait-thumb-prompt')?.value?.trim()
     const style = document.getElementById('ait-thumb-style')?.value || 'modern'
+    const template = document.getElementById('ait-thumb-template')?.value || 'custom'
 
     if (!prompt) { toast('Enter an image prompt first', 'w'); return }
 
     this._setStatus('ait-thumb-status', 'loading', '<i class="fas fa-spinner fa-spin"></i> Generating thumbnail...')
     document.getElementById('ait-thumb-preview').style.display = 'none'
 
-    try {
-      const data = await AdminAPI.post('/v1/ai/generate-thumbnail', { prompt, style })
-      if (!data.success) throw new Error(data.error)
+    // Generate canvas thumbnail IMMEDIATELY (no waiting)
+    const canvasUrl = this._generateCanvasThumbnail(prompt, style)
+    document.getElementById('ait-thumb-img').src = canvasUrl
+    document.getElementById('ait-thumb-preview').style.display = 'block'
+    this._generatedImageUrl = canvasUrl
+    this._setStatus('ait-thumb-status', 'success',
+      `<i class="fas fa-check-circle"></i> Thumbnail ready! Click "Use as Thumbnail" to apply.`)
 
-      const imgUrl = data.data?.image_url || data.thumbnail_url
-      if (!imgUrl) throw new Error('No image URL returned')
-
-      // If it's a local URL, load it directly
-      // If it's a placeholder, generate a canvas-based image instead
-      if (imgUrl.includes('placeholder.com') || imgUrl.includes('via.placeholder')) {
-        // Generate a nice canvas thumbnail locally
-        const canvasUrl = this._generateCanvasThumbnail(prompt, style)
-        document.getElementById('ait-thumb-img').src = canvasUrl
-        this._generatedImageUrl = canvasUrl
-      } else {
-        document.getElementById('ait-thumb-img').src = imgUrl
-        this._generatedImageUrl = imgUrl
+    // Try to get a better AI image in background (non-blocking)
+    AdminAPI.post('/v1/ai/generate-thumbnail', { prompt, style, template }).then(data => {
+      const imgUrl = data?.data?.image_url
+      if (imgUrl && !imgUrl.includes('placeholder.com')) {
+        const img = new Image()
+        img.onload = () => {
+          document.getElementById('ait-thumb-img').src = imgUrl
+          this._generatedImageUrl = imgUrl
+          this._setStatus('ait-thumb-status', 'success',
+            `<i class="fas fa-check-circle"></i> AI image ready! Click "Use as Thumbnail" to apply.`)
+        }
+        img.src = imgUrl
       }
-
-      document.getElementById('ait-thumb-preview').style.display = 'block'
-      this._setStatus('ait-thumb-status', 'success',
-        `<i class="fas fa-check-circle"></i> Thumbnail ready! Click "Use as Thumbnail" to apply.`)
-
-    } catch (e) {
-      // Even on error, generate a canvas thumbnail
-      const canvasUrl = this._generateCanvasThumbnail(prompt, style)
-      document.getElementById('ait-thumb-img').src = canvasUrl
-      document.getElementById('ait-thumb-preview').style.display = 'block'
-      this._generatedImageUrl = canvasUrl
-      this._setStatus('ait-thumb-status', 'success',
-        `<i class="fas fa-check-circle"></i> Thumbnail generated! Click "Use as Thumbnail" to apply.`)
-    }
+    }).catch(err => {
+      console.error('[AI Thumbnail Error]', err)
+      this._setStatus('ait-thumb-status', 'error', 
+        `<i class="fas fa-exclamation-triangle"></i> AI generation failed: ${err.message || 'Please check your Replicate API key'}`)
+    })
   },
 
   _generateCanvasThumbnail(prompt, style) {
@@ -870,12 +908,12 @@ window.AITools = {
 
     // Style-based color schemes
     const schemes = {
-      dark:         { bg1: '#0f0f1a', bg2: '#1a1a2e', accent: '#6366f1', text: '#e2e8f0' },
-      modern:       { bg1: '#f8fafc', bg2: '#e2e8f0', accent: '#6366f1', text: '#1e293b' },
-      gradient:     { bg1: '#667eea', bg2: '#764ba2', accent: '#f59e0b', text: '#ffffff' },
-      minimal:      { bg1: '#ffffff', bg2: '#f1f5f9', accent: '#3b82f6', text: '#0f172a' },
-      '3d':         { bg1: '#0ea5e9', bg2: '#0284c7', accent: '#f0f9ff', text: '#ffffff' },
-      professional: { bg1: '#1e293b', bg2: '#334155', accent: '#22c55e', text: '#f8fafc' }
+      dark:         { bg1: '#0f0f1a', bg2: '#1a1a2e', accent: '#6366f1', text: '#e2e8f0', card: 'rgba(255,255,255,0.08)' },
+      modern:       { bg1: '#f0f4ff', bg2: '#e8ecf8', accent: '#6366f1', text: '#1e293b', card: 'rgba(255,255,255,0.95)' },
+      gradient:     { bg1: '#667eea', bg2: '#764ba2', accent: '#f59e0b', text: '#ffffff', card: 'rgba(255,255,255,0.15)' },
+      minimal:      { bg1: '#ffffff', bg2: '#f8fafc', accent: '#3b82f6', text: '#0f172a', card: 'rgba(255,255,255,0.9)' },
+      '3d':         { bg1: '#0c1445', bg2: '#1a237e', accent: '#00e5ff', text: '#ffffff', card: 'rgba(255,255,255,0.1)' },
+      professional: { bg1: '#1e293b', bg2: '#0f172a', accent: '#22c55e', text: '#f8fafc', card: 'rgba(255,255,255,0.08)' }
     }
     const s = schemes[style] || schemes.modern
 
@@ -887,49 +925,72 @@ window.AITools = {
     ctx.fillRect(0, 0, 800, 800)
 
     // Decorative circles
-    ctx.globalAlpha = 0.15
+    ctx.globalAlpha = 0.12
     ctx.fillStyle = s.accent
-    ctx.beginPath(); ctx.arc(650, 150, 200, 0, Math.PI * 2); ctx.fill()
-    ctx.beginPath(); ctx.arc(100, 650, 150, 0, Math.PI * 2); ctx.fill()
+    ctx.beginPath(); ctx.arc(680, 120, 220, 0, Math.PI * 2); ctx.fill()
+    ctx.beginPath(); ctx.arc(80, 680, 160, 0, Math.PI * 2); ctx.fill()
     ctx.globalAlpha = 1
 
     // Center card
-    ctx.fillStyle = style === 'modern' || style === 'minimal' ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.1)'
-    this._roundRect(ctx, 80, 200, 640, 400, 20)
+    ctx.fillStyle = s.card
+    this._roundRect(ctx, 60, 160, 680, 480, 24)
     ctx.fill()
 
-    // Accent bar
+    // Accent left bar
     ctx.fillStyle = s.accent
-    ctx.fillRect(80, 200, 8, 400)
+    ctx.fillRect(60, 160, 8, 480)
 
-    // Product icon (simple geometric)
-    ctx.fillStyle = s.accent
-    ctx.globalAlpha = 0.8
-    ctx.beginPath(); ctx.arc(400, 320, 60, 0, Math.PI * 2); ctx.fill()
-    ctx.globalAlpha = 1
+    // Icon circle
+    const grad2 = ctx.createLinearGradient(340, 220, 460, 340)
+    grad2.addColorStop(0, s.accent)
+    grad2.addColorStop(1, s.bg2)
+    ctx.fillStyle = grad2
+    ctx.beginPath(); ctx.arc(400, 300, 70, 0, Math.PI * 2); ctx.fill()
+
+    // Star icon
     ctx.fillStyle = '#ffffff'
-    ctx.font = 'bold 48px Arial'
+    ctx.font = 'bold 52px Arial'
     ctx.textAlign = 'center'
-    ctx.fillText('✦', 400, 338)
+    ctx.fillText('✦', 400, 320)
 
-    // Product name from prompt
-    const words = prompt.split(' ').slice(0, 5).join(' ')
+    // Get product title from form (not the raw prompt)
+    const form = document.getElementById('prod-form')
+    const productTitle = form?.title?.value?.trim() || ''
+    const displayName = productTitle || 'Digital Product'
+
+    // Product name - large, clean
     ctx.fillStyle = s.text
-    ctx.font = 'bold 32px Arial'
+    ctx.font = 'bold 36px Arial, sans-serif'
     ctx.textAlign = 'center'
-    ctx.fillText(words.substring(0, 28), 400, 430)
+    // Wrap text if too long
+    const maxWidth = 580
+    const words = displayName.split(' ')
+    let line = '', lines = []
+    for (const word of words) {
+      const test = line + (line ? ' ' : '') + word
+      if (ctx.measureText(test).width > maxWidth && line) {
+        lines.push(line); line = word
+      } else { line = test }
+    }
+    lines.push(line)
+    lines = lines.slice(0, 2) // max 2 lines
+    const lineHeight = 44
+    const startY = 420 - ((lines.length - 1) * lineHeight) / 2
+    lines.forEach((l, i) => ctx.fillText(l, 400, startY + i * lineHeight))
 
-    // Subtitle
+    // Category badge
+    const catSelect = document.getElementById('prod-cat-select')
+    const catName = catSelect?.options[catSelect?.selectedIndex]?.text || 'Digital Product'
     ctx.fillStyle = s.accent
-    ctx.font = '18px Arial'
-    ctx.fillText('Digital Product', 400, 470)
+    ctx.font = '20px Arial'
+    ctx.fillText(catName !== 'Select category...' ? catName : 'Digital Product', 400, startY + lines.length * lineHeight + 20)
 
-    // DigiKraft branding
+    // DigiKraft branding at bottom
     ctx.fillStyle = s.accent
-    ctx.font = 'bold 16px Arial'
-    ctx.fillText('DigiKraft.shop', 400, 740)
+    ctx.font = 'bold 18px Arial'
+    ctx.fillText('DigiKraft.shop', 400, 760)
 
-    return canvas.toDataURL('image/jpeg', 0.9)
+    return canvas.toDataURL('image/jpeg', 0.92)
   },
 
   _roundRect(ctx, x, y, w, h, r) {
@@ -1024,6 +1085,7 @@ window.prodTab = function(tab, btn) {
   if (btn) btn.classList.add('on')
   if (tab === 'media') setTimeout(() => ProductsView._renderFileList(), 50)
   if (tab === 'articles') setTimeout(() => ProductsView._loadArticlePicker(), 50)
+  if (tab === 'aitools') setTimeout(() => ProductsView._autoSelectTemplate(), 50)
   if (tab === 'pdf') {
     // Auto-fill PDF tab from product form data
     const form = document.getElementById('prod-form')
