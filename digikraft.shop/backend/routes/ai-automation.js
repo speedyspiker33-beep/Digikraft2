@@ -398,18 +398,15 @@ router.post('/generate-thumbnail', adminMiddleware, async (req, res) => {
   const styleHint = styleMap[style] || styleMap.modern
   const fullPrompt = `${imagePrompt}, ${styleHint}, high quality, e-commerce product image, 1:1 ratio`
 
-  // Download Pollinations image to backend and serve locally
+  // Download image from Pollinations (with shorter timeout) or use Unsplash as fallback
   try {
     const encoded = encodeURIComponent(fullPrompt)
     const seed = Math.floor(Math.random() * 999999)
-    const pollinationsUrl = `https://image.pollinations.ai/prompt/${encoded}?width=800&height=800&seed=${seed}&nologo=true&enhance=true`
+    const pollinationsUrl = `https://image.pollinations.ai/prompt/${encoded}?width=800&height=800&seed=${seed}&nologo=true&model=flux`
 
-    // Download the image buffer
-    const imgResponse = await axios.get(pollinationsUrl, { responseType: 'arraybuffer', timeout: 30000 })
+    const imgResponse = await axios.get(pollinationsUrl, { responseType: 'arraybuffer', timeout: 20000 })
     const imgBuffer = Buffer.from(imgResponse.data)
 
-    // Save to uploads/thumbnails/
-    const { path: fsPath, fs: fsModule } = require('path'), fs = require('fs')
     const thumbDir = require('path').resolve(process.env.UPLOAD_DIR || './uploads', 'thumbnails')
     require('fs').mkdirSync(thumbDir, { recursive: true })
     const filename = `thumb-${seed}.jpg`
@@ -418,14 +415,37 @@ router.post('/generate-thumbnail', adminMiddleware, async (req, res) => {
 
     const baseUrl = process.env.BACKEND_URL ||
       (process.env.RAILWAY_PUBLIC_DOMAIN ? `https://${process.env.RAILWAY_PUBLIC_DOMAIN}` : 'http://localhost:8080')
-    const localUrl = `${baseUrl}/uploads/thumbnails/${filename}`
 
     return res.json({
       success: true,
-      data: { image_url: localUrl, prompt: fullPrompt, source: 'pollinations' }
+      data: { image_url: `${baseUrl}/uploads/thumbnails/${filename}`, prompt: fullPrompt, source: 'pollinations' }
     })
   } catch (polErr) {
     console.error('[Pollinations Error]', polErr.message)
+  }
+
+  // Fallback: Unsplash random relevant image (instant, always works)
+  try {
+    const searchTerm = encodeURIComponent((prompt || 'digital product').split(' ').slice(0, 3).join(' '))
+    const unsplashUrl = `https://source.unsplash.com/800x800/?${searchTerm}`
+    // Follow redirect to get actual image
+    const imgResponse = await axios.get(unsplashUrl, { responseType: 'arraybuffer', timeout: 10000, maxRedirects: 5 })
+    const imgBuffer = Buffer.from(imgResponse.data)
+
+    const thumbDir = require('path').resolve(process.env.UPLOAD_DIR || './uploads', 'thumbnails')
+    require('fs').mkdirSync(thumbDir, { recursive: true })
+    const filename = `thumb-unsplash-${Date.now()}.jpg`
+    require('fs').writeFileSync(require('path').join(thumbDir, filename), imgBuffer)
+
+    const baseUrl = process.env.BACKEND_URL ||
+      (process.env.RAILWAY_PUBLIC_DOMAIN ? `https://${process.env.RAILWAY_PUBLIC_DOMAIN}` : 'http://localhost:8080')
+
+    return res.json({
+      success: true,
+      data: { image_url: `${baseUrl}/uploads/thumbnails/${filename}`, prompt: fullPrompt, source: 'unsplash' }
+    })
+  } catch (unsplashErr) {
+    console.error('[Unsplash Error]', unsplashErr.message)
   }
 
   // Fallback: DALL-E via OpenRouter

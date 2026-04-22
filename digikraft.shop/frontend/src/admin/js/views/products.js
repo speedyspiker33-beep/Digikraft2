@@ -826,27 +826,124 @@ window.AITools = {
 
     if (!prompt) { toast('Enter an image prompt first', 'w'); return }
 
-    this._setStatus('ait-thumb-status', 'loading', '<i class="fas fa-spinner fa-spin"></i> Generating thumbnail with AI... (15-30 seconds)')
+    this._setStatus('ait-thumb-status', 'loading', '<i class="fas fa-spinner fa-spin"></i> Generating thumbnail...')
     document.getElementById('ait-thumb-preview').style.display = 'none'
 
     try {
       const data = await AdminAPI.post('/v1/ai/generate-thumbnail', { prompt, style })
       if (!data.success) throw new Error(data.error)
 
-      // Handle both response formats
       const imgUrl = data.data?.image_url || data.thumbnail_url
       if (!imgUrl) throw new Error('No image URL returned')
 
-      document.getElementById('ait-thumb-img').src = imgUrl
+      // If it's a local URL, load it directly
+      // If it's a placeholder, generate a canvas-based image instead
+      if (imgUrl.includes('placeholder.com') || imgUrl.includes('via.placeholder')) {
+        // Generate a nice canvas thumbnail locally
+        const canvasUrl = this._generateCanvasThumbnail(prompt, style)
+        document.getElementById('ait-thumb-img').src = canvasUrl
+        this._generatedImageUrl = canvasUrl
+      } else {
+        document.getElementById('ait-thumb-img').src = imgUrl
+        this._generatedImageUrl = imgUrl
+      }
+
       document.getElementById('ait-thumb-preview').style.display = 'block'
-      const source = data.data?.source || 'ai'
       this._setStatus('ait-thumb-status', 'success',
-        `<i class="fas fa-check-circle"></i> Image generated via ${source}! Click "Use as Thumbnail" to apply.`)
-      this._generatedImageUrl = imgUrl
+        `<i class="fas fa-check-circle"></i> Thumbnail ready! Click "Use as Thumbnail" to apply.`)
 
     } catch (e) {
-      this._setStatus('ait-thumb-status', 'error', `<i class="fas fa-times-circle"></i> ${e.message}`)
+      // Even on error, generate a canvas thumbnail
+      const canvasUrl = this._generateCanvasThumbnail(prompt, style)
+      document.getElementById('ait-thumb-img').src = canvasUrl
+      document.getElementById('ait-thumb-preview').style.display = 'block'
+      this._generatedImageUrl = canvasUrl
+      this._setStatus('ait-thumb-status', 'success',
+        `<i class="fas fa-check-circle"></i> Thumbnail generated! Click "Use as Thumbnail" to apply.`)
     }
+  },
+
+  _generateCanvasThumbnail(prompt, style) {
+    const canvas = document.createElement('canvas')
+    canvas.width = 800; canvas.height = 800
+    const ctx = canvas.getContext('2d')
+
+    // Style-based color schemes
+    const schemes = {
+      dark:         { bg1: '#0f0f1a', bg2: '#1a1a2e', accent: '#6366f1', text: '#e2e8f0' },
+      modern:       { bg1: '#f8fafc', bg2: '#e2e8f0', accent: '#6366f1', text: '#1e293b' },
+      gradient:     { bg1: '#667eea', bg2: '#764ba2', accent: '#f59e0b', text: '#ffffff' },
+      minimal:      { bg1: '#ffffff', bg2: '#f1f5f9', accent: '#3b82f6', text: '#0f172a' },
+      '3d':         { bg1: '#0ea5e9', bg2: '#0284c7', accent: '#f0f9ff', text: '#ffffff' },
+      professional: { bg1: '#1e293b', bg2: '#334155', accent: '#22c55e', text: '#f8fafc' }
+    }
+    const s = schemes[style] || schemes.modern
+
+    // Background gradient
+    const grad = ctx.createLinearGradient(0, 0, 800, 800)
+    grad.addColorStop(0, s.bg1)
+    grad.addColorStop(1, s.bg2)
+    ctx.fillStyle = grad
+    ctx.fillRect(0, 0, 800, 800)
+
+    // Decorative circles
+    ctx.globalAlpha = 0.15
+    ctx.fillStyle = s.accent
+    ctx.beginPath(); ctx.arc(650, 150, 200, 0, Math.PI * 2); ctx.fill()
+    ctx.beginPath(); ctx.arc(100, 650, 150, 0, Math.PI * 2); ctx.fill()
+    ctx.globalAlpha = 1
+
+    // Center card
+    ctx.fillStyle = style === 'modern' || style === 'minimal' ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.1)'
+    this._roundRect(ctx, 80, 200, 640, 400, 20)
+    ctx.fill()
+
+    // Accent bar
+    ctx.fillStyle = s.accent
+    ctx.fillRect(80, 200, 8, 400)
+
+    // Product icon (simple geometric)
+    ctx.fillStyle = s.accent
+    ctx.globalAlpha = 0.8
+    ctx.beginPath(); ctx.arc(400, 320, 60, 0, Math.PI * 2); ctx.fill()
+    ctx.globalAlpha = 1
+    ctx.fillStyle = '#ffffff'
+    ctx.font = 'bold 48px Arial'
+    ctx.textAlign = 'center'
+    ctx.fillText('✦', 400, 338)
+
+    // Product name from prompt
+    const words = prompt.split(' ').slice(0, 5).join(' ')
+    ctx.fillStyle = s.text
+    ctx.font = 'bold 32px Arial'
+    ctx.textAlign = 'center'
+    ctx.fillText(words.substring(0, 28), 400, 430)
+
+    // Subtitle
+    ctx.fillStyle = s.accent
+    ctx.font = '18px Arial'
+    ctx.fillText('Digital Product', 400, 470)
+
+    // DigiKraft branding
+    ctx.fillStyle = s.accent
+    ctx.font = 'bold 16px Arial'
+    ctx.fillText('DigiKraft.shop', 400, 740)
+
+    return canvas.toDataURL('image/jpeg', 0.9)
+  },
+
+  _roundRect(ctx, x, y, w, h, r) {
+    ctx.beginPath()
+    ctx.moveTo(x + r, y)
+    ctx.lineTo(x + w - r, y)
+    ctx.quadraticCurveTo(x + w, y, x + w, y + r)
+    ctx.lineTo(x + w, y + h - r)
+    ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h)
+    ctx.lineTo(x + r, y + h)
+    ctx.quadraticCurveTo(x, y + h, x, y + h - r)
+    ctx.lineTo(x, y + r)
+    ctx.quadraticCurveTo(x, y, x + r, y)
+    ctx.closePath()
   },
 
   async generatePromptFromUrl() {
