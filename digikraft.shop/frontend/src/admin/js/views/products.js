@@ -726,6 +726,135 @@ window.saveProd = async function(e) {
   }
 }
 
+// ===== AI TOOLS (URL Analyzer + Thumbnail Creator) =====
+window.AITools = {
+  _lastAnalysis: null,
+
+  _setStatus(elId, type, html) {
+    const el = document.getElementById(elId)
+    if (!el) return
+    const colors = {
+      loading: ['rgba(99,102,241,.12)', 'var(--accent)'],
+      success: ['rgba(34,197,94,.12)', 'var(--green)'],
+      error:   ['rgba(239,68,68,.12)', 'var(--red)'],
+      warn:    ['rgba(245,158,11,.12)', 'var(--yellow)']
+    }
+    const [bg, color] = colors[type] || colors.loading
+    el.style.display = 'block'
+    el.style.background = bg
+    el.style.color = color
+    el.innerHTML = html
+  },
+
+  async analyzeUrl() {
+    const url = document.getElementById('ait-url')?.value?.trim()
+    if (!url) { toast('Paste a product URL first', 'w'); return }
+
+    this._setStatus('ait-analyze-status', 'loading', '<i class="fas fa-spinner fa-spin"></i> Analyzing product URL...')
+    document.getElementById('ait-prompt-result').style.display = 'none'
+
+    try {
+      const data = await AdminAPI.post('/v1/ai/analyze-url', { url })
+      if (!data.success) throw new Error(data.error)
+
+      this._lastAnalysis = data.data
+
+      // Build a rich image generation prompt from the analysis
+      const p = data.data
+      const imagePrompt = p.thumbnail_prompt ||
+        `Professional product thumbnail for "${p.name}", ${p.category} digital product, ${(p.tags || []).slice(0,4).join(', ')}, modern design, clean background, high quality e-commerce image`
+
+      document.getElementById('ait-prompt-text').value = imagePrompt
+      document.getElementById('ait-thumb-prompt').value = imagePrompt
+      document.getElementById('ait-prompt-result').style.display = 'block'
+
+      this._setStatus('ait-analyze-status', 'success',
+        `<i class="fas fa-check-circle"></i> Analyzed: <strong>${p.name}</strong> — ${p.category} · ₹${p.price}`)
+
+    } catch (e) {
+      this._setStatus('ait-analyze-status', 'error', `<i class="fas fa-times-circle"></i> ${e.message}`)
+    }
+  },
+
+  copyPrompt() {
+    const text = document.getElementById('ait-prompt-text')?.value
+    if (!text) return
+    navigator.clipboard.writeText(text).then(() => toast('Prompt copied!', 's'))
+  },
+
+  fillFromAnalysis() {
+    const p = this._lastAnalysis
+    if (!p) { toast('Analyze a URL first', 'w'); return }
+
+    const form = document.getElementById('prod-form')
+    if (!form) return
+
+    if (p.name && !form.title.value) form.title.value = p.name
+    if (p.short_description) form.shortDesc.value = p.short_description
+    if (p.description) form.description.value = p.description
+    if (p.price && !form.price.value) form.price.value = p.price
+    if (p.sale_price && !form.salePrice.value) form.salePrice.value = p.sale_price
+    if (p.tags?.length) form.tags.value = p.tags.join(', ')
+    if (p.file_format) form.fileFormat.value = p.file_format
+    if (p.seo_title) form.seoTitle.value = p.seo_title
+    if (p.seo_desc) form.seoDesc.value = p.seo_description
+
+    // Set category
+    if (p.category) {
+      const catSelect = document.getElementById('prod-cat-select')
+      if (catSelect) {
+        const opt = Array.from(catSelect.options).find(o =>
+          o.text.toLowerCase().includes(p.category.toLowerCase()))
+        if (opt) catSelect.value = opt.value
+      }
+    }
+
+    // Set thumbnail if available
+    if (p.thumbnail_url) {
+      form.image.value = p.thumbnail_url
+      prevImg(p.thumbnail_url)
+    }
+
+    toast('Product form filled from analysis!', 's')
+    // Switch to basic tab to show the filled data
+    prodTab('basic', document.querySelector('#prod-tabs .tab'))
+  },
+
+  async generateThumbnail() {
+    const prompt = document.getElementById('ait-thumb-prompt')?.value?.trim()
+    const style = document.getElementById('ait-thumb-style')?.value || 'modern'
+
+    if (!prompt) { toast('Enter an image prompt first', 'w'); return }
+
+    this._setStatus('ait-thumb-status', 'loading', '<i class="fas fa-spinner fa-spin"></i> Generating thumbnail with AI... (this takes ~15 seconds)')
+    document.getElementById('ait-thumb-preview').style.display = 'none'
+
+    try {
+      const data = await AdminAPI.post('/v1/ai/generate-thumbnail', { prompt, style })
+      if (!data.success) throw new Error(data.error)
+
+      const imgUrl = data.data.image_url
+      document.getElementById('ait-thumb-img').src = imgUrl
+      document.getElementById('ait-thumb-preview').style.display = 'block'
+      this._setStatus('ait-thumb-status', 'success', '<i class="fas fa-check-circle"></i> Thumbnail generated! Click "Use as Product Thumbnail" to apply it.')
+      this._generatedImageUrl = imgUrl
+
+    } catch (e) {
+      this._setStatus('ait-thumb-status', 'error', `<i class="fas fa-times-circle"></i> ${e.message}`)
+    }
+  },
+
+  useThumbnail() {
+    const url = this._generatedImageUrl
+    if (!url) return
+    const form = document.getElementById('prod-form')
+    if (form) form.image.value = url
+    prevImg(url)
+    toast('Thumbnail applied!', 's')
+    prodTab('basic', document.querySelector('#prod-tabs .tab'))
+  }
+}
+
 // ===== IMAGE PREVIEW =====
 window.prevImg = function(url) {
   const img = document.getElementById('img-prev')
@@ -736,7 +865,7 @@ window.prevImg = function(url) {
 
 // ===== PRODUCT TAB SWITCHER =====
 window.prodTab = function(tab, btn) {
-  ['basic','media','details','seo','articles','pdf'].forEach(t => {
+  ['basic','media','details','seo','articles','pdf','aitools'].forEach(t => {
     const el = document.getElementById('pt-' + t)
     if (el) el.style.display = t === tab ? 'block' : 'none'
   })
