@@ -648,29 +648,42 @@ textarea.fc{resize:vertical;min-height:80px}
             <div style="font-size:11px;color:var(--text3)">Generate a product thumbnail using AI. Describe what you want or use the auto-generated prompt from the analyzer above.</div>
           </div>
 
-          <div class="fg" style="margin-bottom:10px">
-            <label class="fl">Image Prompt</label>
-            <textarea id="ait-thumb-prompt" class="fc" rows="3" placeholder="e.g. Modern UI kit with dark theme, floating cards, purple accent colors, clean minimal design..."></textarea>
-          </div>
+      <div class="fg" style="margin-bottom:10px">
+        <label class="fl">Image Prompt</label>
+        <textarea id="ait-thumb-prompt" class="fc" rows="3" placeholder="e.g. Modern UI kit with dark theme, floating cards, purple accent colors, clean minimal design..."></textarea>
+      </div>
 
-          <div class="fgrid" style="margin-bottom:12px">
-            <div class="fg">
-              <label class="fl">Style</label>
-              <select id="ait-thumb-style" class="fc">
-                <option value="modern">Modern & Clean</option>
-                <option value="dark">Dark Theme</option>
-                <option value="gradient">Gradient / Colorful</option>
-                <option value="minimal">Minimal / Flat</option>
-                <option value="3d">3D / Isometric</option>
-                <option value="professional">Professional / Corporate</option>
-              </select>
-            </div>
-            <div class="fg" style="display:flex;align-items:flex-end">
-              <button type="button" class="btn btn-primary" onclick="AITools.generateThumbnail()" style="width:100%;justify-content:center;background:linear-gradient(135deg,#f59e0b,#ef4444)">
-                <i class="fas fa-wand-magic-sparkles"></i> Generate Image
-              </button>
-            </div>
-          </div>
+      <div class="fgrid" style="margin-bottom:12px">
+        <div class="fg">
+          <label class="fl">Template</label>
+          <select id="ait-thumb-template" class="fc">
+            <option value="custom">🎨 Custom / Generic</option>
+            <option value="ui-kit">📱 UI Kit / Components</option>
+            <option value="font-pack">📝 Font / Typography</option>
+            <option value="logo-bundle">🎯 Logo / Branding</option>
+            <option value="3d-asset">🎮 3D Asset / Mockup</option>
+            <option value="template">🖼️ Template / Layout</option>
+            <option value="course">📚 Course / Tutorial</option>
+          </select>
+        </div>
+        <div class="fg">
+          <label class="fl">Style</label>
+          <select id="ait-thumb-style" class="fc">
+            <option value="modern">Modern & Clean</option>
+            <option value="dark">Dark Theme</option>
+            <option value="gradient">Gradient / Colorful</option>
+            <option value="minimal">Minimal / Flat</option>
+            <option value="3d">3D / Isometric</option>
+            <option value="professional">Professional / Corporate</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="margin-bottom:12px">
+        <button type="button" class="btn btn-primary" onclick="AITools.generateThumbnail()" style="width:100%;justify-content:center;background:linear-gradient(135deg,#f59e0b,#ef4444)">
+          <i class="fas fa-wand-magic-sparkles"></i> Generate Image
+        </button>
+      </div>
 
           <div id="ait-thumb-status" style="display:none;padding:10px 12px;border-radius:9px;font-size:12px;font-weight:600;margin-bottom:12px"></div>
 
