@@ -895,11 +895,17 @@ window.AITools = {
   useThumbnail() {
     const url = this._generatedImageUrl
     if (!url) return
+    // Find the image input by name
     const form = document.getElementById('prod-form')
-    if (form) form.image.value = url
+    const imageInput = form?.querySelector('[name="image"]')
+    if (imageInput) {
+      imageInput.value = url
+      imageInput.dispatchEvent(new Event('input')) // triggers prevImg
+    }
     prevImg(url)
-    toast('Thumbnail applied!', 's')
-    prodTab('basic', document.querySelector('#prod-tabs .tab'))
+    toast('Thumbnail applied to product!', 's')
+    // Switch to media tab so user can see it
+    prodTab('media', document.querySelectorAll('#prod-tabs .tab')[1])
   }
 }
 

@@ -4,6 +4,7 @@
 const API_BASE = window.location.hostname === 'localhost' 
   ? 'http://localhost:8080/api'
   : 'https://digikraft2-production.up.railway.app/api'
+window.API_BASE = API_BASE  // expose for other scripts
 const ADMIN_TOKEN_KEY = 'dk_admin_token'
 
 const AdminAPI = {
