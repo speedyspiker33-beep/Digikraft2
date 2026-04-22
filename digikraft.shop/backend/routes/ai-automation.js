@@ -398,16 +398,35 @@ router.post('/generate-thumbnail', adminMiddleware, async (req, res) => {
   const styleHint = styleMap[style] || styleMap.modern
   const fullPrompt = `${imagePrompt}, ${styleHint}, high quality, e-commerce product image, 1:1 ratio`
 
-  // Try Pollinations.ai first (free, no key needed, always works)
+  // Download Pollinations image to backend and serve locally
   try {
     const encoded = encodeURIComponent(fullPrompt)
     const seed = Math.floor(Math.random() * 999999)
     const pollinationsUrl = `https://image.pollinations.ai/prompt/${encoded}?width=800&height=800&seed=${seed}&nologo=true&enhance=true`
+
+    // Download the image buffer
+    const imgResponse = await axios.get(pollinationsUrl, { responseType: 'arraybuffer', timeout: 30000 })
+    const imgBuffer = Buffer.from(imgResponse.data)
+
+    // Save to uploads/thumbnails/
+    const { path: fsPath, fs: fsModule } = require('path'), fs = require('fs')
+    const thumbDir = require('path').resolve(process.env.UPLOAD_DIR || './uploads', 'thumbnails')
+    require('fs').mkdirSync(thumbDir, { recursive: true })
+    const filename = `thumb-${seed}.jpg`
+    const filePath = require('path').join(thumbDir, filename)
+    require('fs').writeFileSync(filePath, imgBuffer)
+
+    const baseUrl = process.env.BACKEND_URL ||
+      (process.env.RAILWAY_PUBLIC_DOMAIN ? `https://${process.env.RAILWAY_PUBLIC_DOMAIN}` : 'http://localhost:8080')
+    const localUrl = `${baseUrl}/uploads/thumbnails/${filename}`
+
     return res.json({
       success: true,
-      data: { image_url: pollinationsUrl, prompt: fullPrompt, source: 'pollinations' }
+      data: { image_url: localUrl, prompt: fullPrompt, source: 'pollinations' }
     })
-  } catch {}
+  } catch (polErr) {
+    console.error('[Pollinations Error]', polErr.message)
+  }
 
   // Fallback: DALL-E via OpenRouter
   const openrouterKey = process.env.OPENROUTER_API_KEY
