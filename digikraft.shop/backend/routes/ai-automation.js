@@ -398,7 +398,53 @@ router.post('/generate-thumbnail', adminMiddleware, async (req, res) => {
   const styleHint = styleMap[style] || styleMap.modern
   const fullPrompt = `${imagePrompt}, ${styleHint}, high quality, e-commerce product image, 1:1 ratio`
 
-  // Download image from Pollinations (with shorter timeout) or use Unsplash as fallback
+  // ── 1. Replicate (Flux Schnell — fast, high quality) ─────────────────────
+  const replicateToken = process.env.REPLICATE_API_TOKEN
+  if (replicateToken) {
+    try {
+      // Start prediction
+      const startRes = await axios.post(
+        'https://api.replicate.com/v1/models/black-forest-labs/flux-schnell/predictions',
+        { input: { prompt: fullPrompt, num_outputs: 1, output_format: 'jpg', output_quality: 90, aspect_ratio: '1:1' } },
+        { headers: { 'Authorization': `Bearer ${replicateToken}`, 'Content-Type': 'application/json' }, timeout: 10000 }
+      )
+      const predictionId = startRes.data.id
+      if (!predictionId) throw new Error('No prediction ID')
+
+      // Poll until done (max 30s)
+      let imageUrl = null
+      for (let i = 0; i < 15; i++) {
+        await new Promise(r => setTimeout(r, 2000))
+        const pollRes = await axios.get(
+          `https://api.replicate.com/v1/predictions/${predictionId}`,
+          { headers: { 'Authorization': `Bearer ${replicateToken}` }, timeout: 5000 }
+        )
+        const status = pollRes.data.status
+        if (status === 'succeeded') { imageUrl = pollRes.data.output?.[0]; break }
+        if (status === 'failed') throw new Error('Replicate prediction failed')
+      }
+      if (!imageUrl) throw new Error('Replicate timeout')
+
+      // Download and save locally
+      const imgResponse = await axios.get(imageUrl, { responseType: 'arraybuffer', timeout: 15000 })
+      const thumbDir = require('path').resolve(process.env.UPLOAD_DIR || './uploads', 'thumbnails')
+      require('fs').mkdirSync(thumbDir, { recursive: true })
+      const filename = `thumb-replicate-${Date.now()}.jpg`
+      require('fs').writeFileSync(require('path').join(thumbDir, filename), Buffer.from(imgResponse.data))
+
+      const baseUrl = process.env.BACKEND_URL ||
+        (process.env.RAILWAY_PUBLIC_DOMAIN ? `https://${process.env.RAILWAY_PUBLIC_DOMAIN}` : 'http://localhost:8080')
+
+      return res.json({
+        success: true,
+        data: { image_url: `${baseUrl}/uploads/thumbnails/${filename}`, prompt: fullPrompt, source: 'replicate-flux' }
+      })
+    } catch (repErr) {
+      console.error('[Replicate Error]', repErr.message)
+    }
+  }
+
+  // ── 2. Pollinations (free fallback) ───────────────────────────────────────
   try {
     const encoded = encodeURIComponent(fullPrompt)
     const seed = Math.floor(Math.random() * 999999)
