@@ -1,13 +1,59 @@
 <template>
   <div>
+    <!-- Toast Notifications -->
+    <UiToast />
+
+    <!-- Quick View Modal -->
+    <MobileQuickViewModal 
+      :is-open="quickViewOpen"
+      :product="selectedProduct"
+      @close="quickViewOpen = false"
+    />
+
+    <!-- Filter Sheet -->
+    <MobileFilterSheet 
+      :is-open="filterSheetOpen"
+      @close="filterSheetOpen = false"
+      @apply="applyFilters"
+    />
+
+    <!-- Main Layout -->
     <NuxtLayout>
       <NuxtPage />
     </NuxtLayout>
+
+    <!-- Bottom Navigation (Mobile) -->
+    <MobileBottomNavigation />
   </div>
 </template>
 
 <script setup lang="ts">
+import type { Product } from '~/types'
+
 const { config, loadFromBackend } = useSiteConfig()
+
+// Mobile state
+const quickViewOpen = ref(false)
+const selectedProduct = ref<Product | null>(null)
+const filterSheetOpen = ref(false)
+
+// Provide functions to child components
+const openQuickView = (product: Product) => {
+  selectedProduct.value = product
+  quickViewOpen.value = true
+}
+
+const openFilterSheet = () => {
+  filterSheetOpen.value = true
+}
+
+const applyFilters = (filters: any) => {
+  // Emit filters to parent or store
+  console.log('Filters applied:', filters)
+}
+
+provide('openQuickView', openQuickView)
+provide('openFilterSheet', openFilterSheet)
 
 // Apply branding from admin Appearance → Branding settings
 onMounted(async () => {

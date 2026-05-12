@@ -9,23 +9,23 @@
       :class="size === 'large' ? 'aspect-[4/3]' : 'aspect-square'"
     >
       <!-- Badges -->
-      <div class="absolute top-3 left-3 z-10 flex flex-col gap-2">
+      <div class="absolute top-2 sm:top-3 left-2 sm:left-3 z-10 flex flex-col gap-1 sm:gap-2">
         <span 
           v-if="product.featured"
-          class="bg-gradient-to-r from-orange-500 to-red-500 text-white text-[10px] font-bold px-2 py-1 rounded-full backdrop-blur-md animate-pulse"
+          class="bg-gradient-to-r from-orange-500 to-red-500 text-white text-[9px] sm:text-[10px] font-bold px-2 py-1 rounded-full backdrop-blur-md animate-pulse"
         >
           ⭐ FEATURED
         </span>
         <span 
           v-if="product.originalPrice"
-          class="bg-green-500 text-white text-[10px] font-bold px-2 py-1 rounded-full backdrop-blur-md"
+          class="bg-green-500 text-white text-[9px] sm:text-[10px] font-bold px-2 py-1 rounded-full backdrop-blur-md"
         >
           -{{ Math.round((1 - product.price / product.originalPrice) * 100) }}%
         </span>
         <!-- Landing Page Badge -->
         <span 
           v-if="hasLandingPage"
-          class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white text-[10px] font-bold px-2 py-1 rounded-full backdrop-blur-md flex items-center gap-1"
+          class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white text-[9px] sm:text-[10px] font-bold px-2 py-1 rounded-full backdrop-blur-md flex items-center gap-1"
         >
           🚀 FULL PAGE
         </span>
@@ -34,7 +34,7 @@
       <!-- Favorite Button -->
       <button 
         @click.stop="toggleFavorite"
-        class="absolute top-3 right-3 z-10 size-8 bg-white/90 backdrop-blur-md rounded-full flex items-center justify-center hover:bg-white hover:scale-110 transition-all shadow-lg"
+        class="absolute top-2 sm:top-3 right-2 sm:right-3 z-10 size-8 sm:size-10 bg-white/90 backdrop-blur-md rounded-full flex items-center justify-center hover:bg-white hover:scale-110 transition-all shadow-lg"
         :class="isFavorite ? 'bg-white' : ''"
       >
         <span 
@@ -74,8 +74,8 @@
         loading="lazy"
       />
 
-      <!-- Quick Add Overlay -->
-      <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
+      <!-- Quick Add Overlay (Desktop) -->
+      <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 hidden md:flex items-end p-4">
         <button 
           @click.stop="addToCart"
           class="w-full bg-white text-primary py-2 rounded-lg font-bold hover:bg-primary hover:text-white transition-all transform translate-y-4 group-hover:translate-y-0 flex items-center justify-center gap-2"
@@ -84,6 +84,15 @@
           Quick Add
         </button>
       </div>
+
+      <!-- Quick View Button (Mobile) -->
+      <button 
+        @click.stop="openQuickView"
+        class="absolute bottom-3 left-3 right-3 md:hidden bg-primary text-white py-2 rounded-lg font-bold hover:bg-blue-700 transition-all flex items-center justify-center gap-2"
+      >
+        <span class="material-symbols-outlined">visibility</span>
+        Quick View
+      </button>
     </div>
 
     <!-- Content -->
@@ -178,9 +187,12 @@ const goToProduct = () => {
 
 // Get auth modal function
 const openAuthModal = inject('openAuthModal', (showLogin: boolean) => {})
+const openQuickView = inject('openQuickView', (product: Product) => {})
 
 const addToCart = () => {
   cartStore.addItem(props.product)
+  const showToast = inject('showToast', (message: string, type: string) => {})
+  showToast(`${props.product.name} added to cart!`, 'success')
 }
 
 const toggleFavorite = () => {

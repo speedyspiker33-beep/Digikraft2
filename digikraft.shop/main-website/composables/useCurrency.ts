@@ -1,45 +1,33 @@
+/**
+ * Currency formatting composable
+ */
+
 export const useCurrency = () => {
-  const currency = useState('currency', () => 'INR')
-  
-  const currencySymbols: Record<string, string> = {
-    INR: '₹',
-    USD: '$',
-    EUR: '€',
-    GBP: '£'
+  const formatPrice = (price: number, currency = 'USD', locale = 'en-US'): string => {
+    return new Intl.NumberFormat(locale, {
+      style: 'currency',
+      currency: currency,
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    }).format(price)
   }
 
-  const conversionRates: Record<string, number> = {
-    INR: 1,
-    USD: 0.012,
-    EUR: 0.011,
-    GBP: 0.0095
+  const formatDiscount = (original: number, current: number): number => {
+    return Math.round(((original - current) / original) * 100)
   }
 
-  const formatPrice = (priceInINR: number): string => {
-    const convertedPrice = priceInINR * conversionRates[currency.value]
-    const symbol = currencySymbols[currency.value]
-    return `${symbol}${convertedPrice.toFixed(2)}`
+  const calculateTax = (price: number, taxRate = 0.1): number => {
+    return Math.round(price * taxRate * 100) / 100
   }
 
-  const setCurrency = (newCurrency: string) => {
-    currency.value = newCurrency
-    if (process.client) {
-      localStorage.setItem('digikraft_currency', newCurrency)
-    }
-  }
-
-  // Load from localStorage on client
-  if (process.client) {
-    const saved = localStorage.getItem('digikraft_currency')
-    if (saved) {
-      currency.value = saved
-    }
+  const calculateTotal = (subtotal: number, tax: number, shipping = 0): number => {
+    return Math.round((subtotal + tax + shipping) * 100) / 100
   }
 
   return {
-    currency,
     formatPrice,
-    setCurrency,
-    currencySymbols
+    formatDiscount,
+    calculateTax,
+    calculateTotal
   }
 }
